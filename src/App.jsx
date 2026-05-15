@@ -146,8 +146,8 @@ textarea.inp{resize:vertical;min-height:64px;}
 .pf{height:100%;border-radius:2px;background:linear-gradient(90deg,#b44fff,#00d4ff);transition:width .4s;}
 .dc{border-color:#b44fff!important;background:#0e0820!important;}
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
-.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.04em;font-family:'Rajdhani',sans-serif;}
-.chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.04em;}
+.badge{display:inline-flex;align-items:center;justify-content:center;padding:2px 0;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.06em;font-family:'Rajdhani',sans-serif;min-width:32px;flex-shrink:0;}
+.chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.06em;}
 `;
 
 /* ═══════════════════════════════════════════════════════════════

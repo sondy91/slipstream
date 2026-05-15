@@ -116,9 +116,9 @@ const GLOBAL_CSS = `
 @keyframes nr-streak{from{transform:translateX(-140%)}to{transform:translateX(280%)}}
 .nr-streak{animation:nr-streak 2.8s linear infinite;}
 
-.vbtn{background:none;border:none;cursor:pointer;padding:6px 14px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:600;color:#5a4870;transition:all .15s;letter-spacing:.04em;}
-.vbtn.act{background:#140f22;color:#f0e8ff;}
-.vbtn:hover:not(.act){color:#c4b5ff;}
+.vbtn{background:none;border:1px solid transparent;cursor:pointer;padding:6px 16px;border-radius:4px;font-family:inherit;font-size:14px;font-weight:600;color:#5a4870;transition:all .15s;letter-spacing:.08em;}
+.vbtn.act{background:rgba(180,79,255,0.15);border-color:rgba(180,79,255,0.333);color:#b44fff;}
+.vbtn:hover:not(.act){color:#c4b5ff;border-color:rgba(180,79,255,0.15);}
 
 .card{background:#0c0818;border:1px solid #1e1430;border-radius:10px;padding:12px 14px;transition:border-color .2s,box-shadow .2s,transform .15s;cursor:pointer;position:relative;overflow:hidden;}
 .card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:currentColor;opacity:0;transition:opacity .2s;}

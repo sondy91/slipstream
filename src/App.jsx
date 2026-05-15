@@ -375,7 +375,7 @@ function BoardView({ tasks, requests, updateTask, filterBy, setFilterBy, onCardC
       <div style={{display:"grid",gridTemplateColumns:`repeat(${cols.length},1fr)`,gap:12}}>
         {cols.map(col=>(
           <div key={col.key} className={dragOver===col.key?"dc":""} style={{background:"#080610",border:"1px solid #140f22",borderRadius:12,padding:12,minHeight:280,transition:"all .15s"}}
-            onDragOver={e=>{e.preventDefault();setDragOver(col.key);}} onDrop={()=>drop(col.key)} onDragLeave={()=>setDragOver(null)}>
+            onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect="move";setDragOver(col.key);}} onDrop={()=>drop(col.key)} onDragLeave={()=>setDragOver(null)}>
             <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,paddingBottom:10,borderBottom:"1px solid #140f22"}}>
               <span className="dot" style={{background:col.dot}}></span>
               <span style={{fontSize:12,fontWeight:600,color:"#8a80a8",letterSpacing:".05em",textTransform:"uppercase"}}>{col.label}</span>
@@ -400,7 +400,23 @@ function BoardCard({ task, requests, linkMode, onCardClick, setDragging }) {
   const isTgt=linkMode&&!isSrc;
   const blockedReqs=(task.reqDeps||[]).map(rid=>requests.find(r=>r.id===rid)).filter(Boolean);
   return(
-    <div className={`card${isSrc?" lsrc":""}${isTgt?" ltgt":""}`} draggable onClick={()=>onCardClick(task.id,"task")} onDragStart={()=>setDragging(task.id)}>
+    <div
+      className={`card${isSrc?" lsrc":""}${isTgt?" ltgt":""}`}
+      draggable
+      style={{cursor:"grab"}}
+      onClick={()=>onCardClick(task.id,"task")}
+      onDragStart={e=>{
+        e.dataTransfer.effectAllowed="move";
+        e.currentTarget.style.opacity="0.35";
+        e.currentTarget.style.cursor="grabbing";
+        setDragging(task.id);
+      }}
+      onDragEnd={e=>{
+        e.currentTarget.style.opacity="1";
+        e.currentTarget.style.cursor="grab";
+        setDragging(null);
+      }}
+    >
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:8}}>
         <span style={{fontSize:13,fontWeight:500,lineHeight:1.4,color:task.status==="Done"?"#3a3055":"#f0e8ff",textDecoration:task.status==="Done"?"line-through":"none",flex:1}}>{task.title}</span>
         <span className="badge" style={{background:pm.bg,color:pm.color,flexShrink:0}}>{task.priority}</span>

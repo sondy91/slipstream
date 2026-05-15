@@ -7,11 +7,10 @@ import Splash from './Splash.jsx'
 function Root() {
   const [phase, setPhase] = useState("splash"); // "splash" | "fading" | "app"
 
-  useEffect(() => {
-    const fade = setTimeout(() => setPhase("fading"), 2000);
-    const show = setTimeout(() => setPhase("app"), 2700);
-    return () => { clearTimeout(fade); clearTimeout(show); };
-  }, []);
+  const handleEnter = () => {
+    setPhase("fading");
+    setTimeout(() => setPhase("app"), 700);
+  };
 
   if (phase === "app") return <App />;
 
@@ -20,7 +19,7 @@ function Root() {
       opacity: phase === "fading" ? 0 : 1,
       transition: "opacity 0.7s ease",
     }}>
-      <Splash />
+      <Splash onEnter={handleEnter} />
     </div>
   );
 }

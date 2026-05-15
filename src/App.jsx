@@ -50,7 +50,7 @@ const PRIORITY_META = {
   "H":  { color:"#f97316", bg:"#2a1a0a", label:"High"     },
   "M":  { color:"#eab308", bg:"#2a2004", label:"Medium"   },
   "L":  { color:"#3b82f6", bg:"#0d1e3a", label:"Low"      },
-  "L-": { color:"#6b7280", bg:"#100820", label:"Lowest"   },
+  "L-": { color:"#6b7280", bg:"#151528", label:"Lowest"   },
 };
 
 const LABEL_META = {
@@ -110,7 +110,7 @@ const GLOBAL_CSS = `
 *{box-sizing:border-box;margin:0;padding:0;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:#1e1430;border-radius:2px;}
+::-webkit-scrollbar-thumb{background:#252540;border-radius:2px;}
 
 /* Single global dashflow — one animation, never restarted */
 @keyframes dashflow{from{stroke-dashoffset:24;}to{stroke-dashoffset:0;}}
@@ -123,7 +123,7 @@ const GLOBAL_CSS = `
 .vbtn.act{background:rgba(180,79,255,0.15);border-color:rgba(180,79,255,0.333);color:#b44fff;}
 .vbtn:hover:not(.act){color:#c4b5ff;border-color:rgba(180,79,255,0.15);}
 
-.card{background:#0c0818;border:1px solid #1e1430;border-radius:10px;padding:12px 14px;transition:border-color .2s,box-shadow .2s,transform .15s;cursor:pointer;position:relative;overflow:hidden;}
+.card{background:#10101d;border:1px solid #252540;border-radius:10px;padding:12px 14px;transition:border-color .2s,box-shadow .2s,transform .15s;cursor:pointer;position:relative;overflow:hidden;}
 .card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:currentColor;opacity:0;transition:opacity .2s;}
 .card:hover{border-color:#b44fff55;transform:translateY(-1px);box-shadow:0 4px 24px rgba(180,79,255,.18);}
 .lsrc{border-color:#b44fff!important;box-shadow:0 0 0 2px rgba(180,79,255,.3)!important;}
@@ -131,21 +131,21 @@ const GLOBAL_CSS = `
 
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .15s;letter-spacing:.04em;}
 .p{background:linear-gradient(135deg,#b44fff,#00d4ff);color:#fff;border:none;text-shadow:0 1px 4px rgba(0,0,0,.3);}.p:hover{background:linear-gradient(135deg,#a040e8,#00bfee);box-shadow:0 0 20px rgba(180,79,255,.4);}
-.g{background:#140f22;color:#d0c8e8;border:1px solid #1e1430;}.g:hover{background:#1a1430;color:#f0e8ff;}
+.g{background:#1a1830;color:#e0ddf0;border:1px solid #2a2850;}.g:hover{background:#252040;color:#f0e8ff;}
 .dr{background:#1e1010;color:#ef4444;border:1px solid #3a1515;}.dr:hover{background:#2a1515;}
 .sm{padding:4px 10px!important;font-size:12px!important;border-radius:5px!important;}
 
 .fl{display:flex;flex-direction:column;gap:5px;}
 .fl label{font-size:11px;font-weight:600;color:#b8a8d0;text-transform:uppercase;letter-spacing:.06em;}
-.inp{background:#100820;border:1px solid #1e1430;border-radius:7px;color:#f0e8ff;font-family:inherit;font-size:13px;padding:8px 12px;width:100%;outline:none;transition:border .15s;}
+.inp{background:#151528;border:1px solid #2a2850;border-radius:7px;color:#f0e8ff;font-family:inherit;font-size:13px;padding:8px 12px;width:100%;outline:none;transition:border .15s;}
 .inp:focus{border-color:#b44fff;box-shadow:0 0 0 2px rgba(180,79,255,.15);}
-select.inp option{background:#100820;}
+select.inp option{background:#151528;}
 textarea.inp{resize:vertical;min-height:64px;}
 
 .mbg{position:fixed;inset:0;background:rgba(4,2,14,.85);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(8px);}
-.mbox{background:#0c0818;border:1px solid #1e1430;border-radius:14px;padding:24px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.mbox{background:#10101d;border:1px solid #2a2850;border-radius:14px;padding:24px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);}
 
-.pb{height:4px;background:#140f22;border-radius:2px;overflow:hidden;}
+.pb{height:4px;background:#1a1a30;border-radius:2px;overflow:hidden;}
 .pf{height:100%;border-radius:2px;background:linear-gradient(90deg,#b44fff,#00d4ff);transition:width .4s;}
 .dc{border-color:#b44fff!important;background:#0e0820!important;}
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
@@ -525,7 +525,7 @@ export default function App() {
       <div style={{height:2,background:"linear-gradient(90deg,#b44fff,#00d4ff)",zIndex:51}} />
 
       {/* Header */}
-      <div style={{borderBottom:"1px solid #1e1430",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:2,background:"rgba(6,4,15,0.92)",backdropFilter:"blur(12px)",zIndex:50}}>
+      <div style={{borderBottom:"1px solid #252540",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:2,background:"rgba(6,4,15,0.92)",backdropFilter:"blur(12px)",zIndex:50}}>
         <div style={{flex:1,display:"flex",alignItems:"center",gap:12}}>
           <svg width="28" height="28" viewBox="0 0 28 28">
             <defs><linearGradient id="hdr-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#b44fff"/><stop offset="100%" stopColor="#00d4ff"/></linearGradient></defs>
@@ -537,7 +537,7 @@ export default function App() {
             <div style={{fontSize:9,color:"#5a4870",letterSpacing:"0.25em",textTransform:"uppercase",marginTop:3,fontFamily:"'Inter Tight',sans-serif"}}>zero friction · max velocity</div>
           </div>
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(6,4,15,0.7)",border:"1px solid #1e1430",borderRadius:8,padding:3}}>
+        <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(6,4,15,0.7)",border:"1px solid #252540",borderRadius:8,padding:3}}>
           {[["board","⬚ Board"],["plan","⬡ Plan"],["requests","⇄ Requests"],["lead","◈ The Bridge"]].map(([v,l])=>(
             <button key={v} className={`vbtn${view===v?" act":""}`} onClick={()=>setView(v)}>{l}</button>
           ))}
@@ -563,7 +563,7 @@ export default function App() {
         <div style={{position:"absolute",top:120,left:0,right:0,display:"flex",justifyContent:"center",zIndex:100,pointerEvents:"none"}}>
           <div style={{background:"rgba(26,13,58,0.95)",backdropFilter:"blur(8px)",border:"1px solid #5b21b6",borderRadius:8,padding:"8px 16px",display:"flex",alignItems:"center",gap:10,fontSize:12,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",pointerEvents:"auto"}}>
             <span style={{color:"#cc99ff",fontWeight:500}}>🔗</span>
-            <span style={{color:"#d0c8e8"}}>
+            <span style={{color:"#e0ddf0"}}>
               {linkMode.sourceType==="req"
                 ? <>Link to <strong style={{color:"#cc99ff"}}>{requests.find(r=>r.id===linkMode.sourceId)?.title}</strong></>
                 : <>Link to <strong style={{color:"#cc99ff"}}>{tasks.find(t=>t.id===linkMode.sourceId)?.title}</strong></>}
@@ -634,11 +634,11 @@ function BoardView({ tasks, requests, updateTask, filterBy, setFilterBy, onCardC
     >
       <div>
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:20,flexWrap:"wrap"}}>
-          <span style={{fontSize:12,color:"#d0c8e8"}}>Assignee:</span>
+          <span style={{fontSize:12,color:"#e0ddf0"}}>Assignee:</span>
           {["All",...TEAM].map(a=>(
-            <button key={a} onClick={()=>setFilterBy(a)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:filterBy===a?"#b44fff":"#100820",borderColor:filterBy===a?"#b44fff":"#1e1430",color:filterBy===a?"#fff":"#d0c8e8"}}>{a}</button>
+            <button key={a} onClick={()=>setFilterBy(a)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:filterBy===a?"#b44fff":"#151528",borderColor:filterBy===a?"#b44fff":"#252540",color:filterBy===a?"#fff":"#d0c8e8"}}>{a}</button>
           ))}
-          <span style={{marginLeft:"auto",fontSize:12,color:"#b8a8d0"}}>{filtered.length} tasks</span>
+          <span style={{marginLeft:"auto",fontSize:12,color:"#c8c4e8"}}>{filtered.length} tasks</span>
         </div>
         <div style={{display:"grid",gridTemplateColumns:`repeat(${cols.length},1fr)`,gap:12}}>
           {cols.map(col=>(
@@ -656,11 +656,11 @@ function BoardView({ tasks, requests, updateTask, filterBy, setFilterBy, onCardC
 function DroppableColumn({ col, requests, linkMode, onCardClick, activeId, cardRefs }) {
   const {setNodeRef, isOver} = useDroppable({id: col.key});
   return(
-    <div ref={setNodeRef} className={isOver?"dc":""} style={{background:"#080610",border:`1px solid ${isOver?"#b44fff55":"#140f22"}`,borderRadius:12,padding:12,minHeight:280,transition:"border-color .15s, box-shadow .15s",boxShadow:isOver?"0 0 0 1px #b44fff33, inset 0 0 20px rgba(180,79,255,0.04)":"none"}}>
-      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,paddingBottom:10,borderBottom:"1px solid #140f22"}}>
+    <div ref={setNodeRef} className={isOver?"dc":""} style={{background:"#0a0a18",border:`1px solid ${isOver?"#b44fff55":"#1a1a30"}`,borderRadius:12,padding:12,minHeight:280,transition:"border-color .15s, box-shadow .15s",boxShadow:isOver?"0 0 0 1px #b44fff33, inset 0 0 20px rgba(180,79,255,0.04)":"none"}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,paddingBottom:10,borderBottom:"1px solid #1a1a30"}}>
         <span className="dot" style={{background:col.dot}}></span>
-        <span style={{fontSize:12,fontWeight:600,color:"#d0c8e8",letterSpacing:".05em",textTransform:"uppercase"}}>{col.label}</span>
-        <span style={{marginLeft:"auto",background:"#140f22",borderRadius:4,padding:"1px 7px",fontSize:11,color:"#b8a8d0"}}>{col.items.length}</span>
+        <span style={{fontSize:12,fontWeight:600,color:"#e0ddf0",letterSpacing:".05em",textTransform:"uppercase"}}>{col.label}</span>
+        <span style={{marginLeft:"auto",background:"#151528",borderRadius:4,padding:"1px 7px",fontSize:11,color:"#c8c4e8"}}>{col.items.length}</span>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
         {col.items.map(task=>(
@@ -732,19 +732,19 @@ function BoardCardContent({ task, requests, linkMode, isOverlay }) {
           </div>
         ))}
         
-        {task.notes&&<div style={{marginTop:7,fontSize:11,color:"#b8a8d0",lineHeight:1.4,borderTop:"1px solid #140f22",paddingTop:7}}>{task.notes}</div>}
+        {task.notes&&<div style={{marginTop:7,fontSize:11,color:"#c8c4e8",lineHeight:1.4,borderTop:"1px solid #1a1a30",paddingTop:7}}>{task.notes}</div>}
         
         {task.checklist&&task.checklist.length>0&&(
-          <div style={{marginTop:7,borderTop:"1px solid #140f22",paddingTop:7}}>
+          <div style={{marginTop:7,borderTop:"1px solid #1a1a30",paddingTop:7}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-              <span style={{fontSize:10,color:"#b8a8d0"}}>
+              <span style={{fontSize:10,color:"#c8c4e8"}}>
                 {task.checklist.filter(c=>c.done).length}/{task.checklist.length}
               </span>
-              <span style={{fontSize:10,color:"#b8a8d0"}}>
+              <span style={{fontSize:10,color:"#c8c4e8"}}>
                 {Math.round(task.checklist.filter(c=>c.done).length/task.checklist.length*100)}%
               </span>
             </div>
-            <div style={{height:4,background:"#140f22",borderRadius:2,overflow:"hidden"}}>
+            <div style={{height:4,background:"#1a1a30",borderRadius:2,overflow:"hidden"}}>
               <div style={{height:"100%",background:"linear-gradient(90deg,#b44fff,#00d4ff)",width:`${task.checklist.filter(c=>c.done).length/task.checklist.length*100}%`,transition:"width .3s"}} />
             </div>
           </div>
@@ -768,11 +768,11 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
   useEffect(()=>{
     // Topo sort tasks
     const lvl={};
-    tasksWithBadges.forEach(t=>{lvl[t.id]=0;});
+    tasks.forEach(t=>{lvl[t.id]=0;});
     let ch=true;
-    while(ch){ch=false;tasksWithBadges.forEach(t=>(t.deps||[]).forEach(d=>{if((lvl[d]||0)>=(lvl[t.id]||0)){lvl[t.id]=(lvl[d]||0)+1;ch=true;}}));}
+    while(ch){ch=false;tasks.forEach(t=>(t.deps||[]).forEach(d=>{if((lvl[d]||0)>=(lvl[t.id]||0)){lvl[t.id]=(lvl[d]||0)+1;ch=true;}}));}
     const byLvl={};
-    tasksWithBadges.forEach(t=>{const l=lvl[t.id]||0;if(!byLvl[l])byLvl[l]=[];byLvl[l].push(t.id);});
+    tasks.forEach(t=>{const l=lvl[t.id]||0;if(!byLvl[l])byLvl[l]=[];byLvl[l].push(t.id);});
     const pos={};
     Object.entries(byLvl).forEach(([l,ids])=>{
       const x=40+Number(l)*(CW+HG);
@@ -785,7 +785,7 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
     const rpos={};
     requests.forEach((r,i)=>{rpos[r.id]={x:40+i*(RW+20),y:maxTaskY+60};});
     setReqLayout(rpos);
-  },[tasksWithBadges,requests]);
+  },[tasks,requests]);
 
   const allPos={...layout,...reqLayout};
   const maxX=Math.max(...Object.values(allPos).map(p=>p.x+Math.max(CW,RW)),600)+60;
@@ -823,10 +823,10 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
   return(
     <div>
       <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14,flexWrap:"wrap"}}>
-        <span style={{fontSize:13,color:"#b8a8d0"}}>Line color = source status. Hover to unlink. Orange lines = request blockers.</span>
+        <span style={{fontSize:13,color:"#c8c4e8"}}>Line color = source status. Hover to unlink. Orange lines = request blockers.</span>
         <div style={{marginLeft:"auto",display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
           {Object.entries(STATUS_META).map(([s,m])=>(
-            <div key={s} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#b8a8d0"}}>
+            <div key={s} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#c8c4e8"}}>
               <span style={{display:"block",width:18,height:2,background:m.line,borderRadius:1}}></span>{s}
             </div>
           ))}
@@ -835,7 +835,7 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
           </div>
         </div>
       </div>
-      {requests.length>0&&<div style={{fontSize:11,color:"#b8a8d0",marginBottom:10}}>⇄ Requests shown below tasks — orange lines connect them to blocked tasks.</div>}
+      {requests.length>0&&<div style={{fontSize:11,color:"#c8c4e8",marginBottom:10}}>⇄ Requests shown below tasks — orange lines connect them to blocked tasks.</div>}
 
       <div style={{overflow:"auto",position:"relative",minHeight:420}}>
         <svg width={maxX} height={maxY} style={{display:"block",position:"absolute",top:0,left:0,pointerEvents:"none"}}>
@@ -890,7 +890,7 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
             const sm=STATUS_META[task.status];
             const lm=task.label?LABEL_META[task.label]:null;
             return(
-              <div key={task.id} style={{position:"absolute",left:pos.x,top:pos.y,width:CW,background:"#0c0818",border:`1px solid ${isSrc?"#b44fff":isTgt?"#10b981":"#23232e"}`,borderRadius:9,padding:"10px 12px",cursor:"pointer",transition:"border-color .15s,box-shadow .15s",boxShadow:isSrc?"0 0 0 2px rgba(180,79,255,.3)":isTgt?"0 0 0 2px rgba(16,185,129,.2)":""}}
+              <div key={task.id} style={{position:"absolute",left:pos.x,top:pos.y,width:CW,background:"#10101d",border:`1px solid ${isSrc?"#b44fff":isTgt?"#10b981":"#23232e"}`,borderRadius:9,padding:"10px 12px",cursor:"pointer",transition:"border-color .15s,box-shadow .15s",boxShadow:isSrc?"0 0 0 2px rgba(180,79,255,.3)":isTgt?"0 0 0 2px rgba(16,185,129,.2)":""}}
                 onClick={()=>onCardClick(task.id,"task")}>
                 {/* Title & Priority */}
                 <div style={{display:"flex",justifyContent:"space-between",gap:6,marginBottom:8}}>
@@ -996,11 +996,11 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
     <div>
       <div style={{display:"flex",gap:8,marginBottom:20,flexWrap:"wrap"}}>
         {[["All",requests.length],...EXT_STATUSES.map(s=>[s,counts[s]])].map(([s,n])=>{
-          const m=s==="All"?{color:"#8a80a8",bg:"#100820"}:EXT_STATUS_META[s];
+          const m=s==="All"?{color:"#8a80a8",bg:"#151528"}:EXT_STATUS_META[s];
           const act=filter===s;
           return(
-            <button key={s} onClick={()=>setFilter(s)} style={{padding:"4px 12px",borderRadius:4,border:"1px solid",fontSize:11,cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",fontWeight:600,letterSpacing:"0.06em",transition:"all .15s",background:act?m.bg:"transparent",borderColor:act?m.color:"#1e1430",color:act?m.color:"#b8a8d0",display:"flex",alignItems:"center",gap:6}}>
-              {s}<span style={{background:"#140f22",padding:"0 5px",borderRadius:3,fontSize:11}}>{n}</span>
+            <button key={s} onClick={()=>setFilter(s)} style={{padding:"4px 12px",borderRadius:4,border:"1px solid",fontSize:11,cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",fontWeight:600,letterSpacing:"0.06em",transition:"all .15s",background:act?m.bg:"transparent",borderColor:act?m.color:"#252540",color:act?m.color:"#c8c4e8",display:"flex",alignItems:"center",gap:6}}>
+              {s}<span style={{background:"#1a1a30",padding:"0 5px",borderRadius:3,fontSize:11}}>{n}</span>
             </button>
           );
         })}
@@ -1011,14 +1011,14 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
           const m=EXT_STATUS_META[req.status];
           const linkedTasks=tasks.filter(t=>(t.reqDeps||[]).includes(req.id));
           return(
-            <div key={req.id} className="card" onClick={()=>onEdit(req)} style={{background:"#0c0818",border:`1px solid #1e1430`,borderRadius:10,padding:"14px 18px",position:"relative",overflow:"hidden"}}>
+            <div key={req.id} className="card" onClick={()=>onEdit(req)} style={{background:"#10101d",border:`1px solid #252540`,borderRadius:10,padding:"14px 18px",position:"relative",overflow:"hidden"}}>
               {/* Status left glow bar */}
               <div style={{position:"absolute",top:0,left:0,bottom:0,width:2,background:m.color,boxShadow:`0 0 8px ${m.color}`,borderRadius:"10px 0 0 10px"}} />
               <div style={{paddingLeft:8,display:"flex",alignItems:"flex-start",gap:16}}>
                 <div style={{flex:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:linkedTasks.length||req.notes?6:0}}>
                     <span style={{fontWeight:600,fontSize:14,color:"#f0e8ff"}}>{req.title}</span>
-                    <span style={{fontSize:11,color:"#d0c8e8",background:"#100820",padding:"2px 8px",borderRadius:4,border:"1px solid #1e1430"}}>{req.team}</span>
+                    <span style={{fontSize:11,color:"#e0ddf0",background:"#151528",padding:"2px 8px",borderRadius:4,border:"1px solid #252540"}}>{req.team}</span>
                   </div>
                   {req.notes&&<div style={{fontSize:12,color:"#8a80a8",marginBottom:linkedTasks.length?6:0}}>{req.notes}</div>}
                   {linkedTasks.length>0&&(
@@ -1085,7 +1085,7 @@ function LeaderView({ tasks, requests }) {
 
   return(
     <div>
-      <div style={{display:"flex",gap:4,background:"#040210",border:"1px solid #140f22",borderRadius:8,padding:3,width:"fit-content",marginBottom:20}}>
+      <div style={{display:"flex",gap:4,background:"#040210",border:"1px solid #1a1a30",borderRadius:8,padding:3,width:"fit-content",marginBottom:20}}>
         {[["overview","Overview"],["timeline","Timeline"]].map(([t,l])=>(
           <button key={t} className={`vbtn${tab===t?" act":""}`} onClick={()=>setTab(t)}>{l}</button>
         ))}
@@ -1102,7 +1102,7 @@ function LeaderView({ tasks, requests }) {
               {l:"Blocked",   v:blocked,           c:blocked>0?"#ef4444":"#10b981"},
               {l:"Open reqs", v:pendingReqs,       c:pendingReqs>0?"#f97316":"#10b981"},
             ].map(m=>(
-              <div key={m.l} style={{background:"#080610",border:"1px solid #140f22",borderRadius:12,padding:"16px 18px"}}>
+              <div key={m.l} style={{background:"#0a0a18",border:"1px solid #1a1a30",borderRadius:12,padding:"16px 18px"}}>
                 <div style={{fontSize:11,color:"#5a4870",marginBottom:8,textTransform:"uppercase",letterSpacing:".06em"}}>{m.l}</div>
                 <div style={{fontSize:28,fontWeight:600,color:m.c,letterSpacing:"-0.03em"}}>{m.v}</div>
               </div>
@@ -1110,7 +1110,7 @@ function LeaderView({ tasks, requests }) {
           </div>
 
           {/* ── Overall flow bar ── */}
-          <div style={{background:"#080610",border:"1px solid #140f22",borderRadius:10,padding:"14px 18px",marginBottom:24}}>
+          <div style={{background:"#0a0a18",border:"1px solid #1a1a30",borderRadius:10,padding:"14px 18px",marginBottom:24}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
               <span style={{fontWeight:500,fontSize:13}}>Overall flow</span>
               <div style={{display:"flex",gap:14}}>
@@ -1122,7 +1122,7 @@ function LeaderView({ tasks, requests }) {
               </div>
             </div>
             {/* Stacked bar */}
-            <div style={{height:8,borderRadius:4,overflow:"hidden",display:"flex",background:"#140f22"}}>
+            <div style={{height:8,borderRadius:4,overflow:"hidden",display:"flex",background:"#1a1a30"}}>
               {total>0&&[
                 {n:done,   c:"#10b981"},
                 {n:inProg, c:"#b44fff"},
@@ -1142,7 +1142,7 @@ function LeaderView({ tasks, requests }) {
                 {labelRows.map(({lbl,total:lt,done:ld,blocked:lb,inProg:lip,pct})=>{
                   const lm=LABEL_META[lbl];
                   return(
-                    <div key={lbl} style={{background:"#080610",border:"1px solid #140f22",borderRadius:10,padding:"12px 16px"}}>
+                    <div key={lbl} style={{background:"#0a0a18",border:"1px solid #1a1a30",borderRadius:10,padding:"12px 16px"}}>
                       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
                         <span className="chip" style={{background:lm.bg,color:lm.color,border:`1px solid ${lm.color}44`}}>{lbl}</span>
                         <div style={{flex:1}}></div>
@@ -1194,11 +1194,11 @@ function LeaderView({ tasks, requests }) {
               {teamRows.map(({name,total:tot,active,blocked:blk,done:dn,todo:td})=>{
                 const pct=tot?Math.round(dn/tot*100):0;
                 return(
-                  <div key={name} style={{background:"#080610",border:`1px solid ${blk>0?"#3a1515":"#140f22"}`,borderRadius:9,padding:"10px 16px",display:"flex",alignItems:"center",gap:14}}>
+                  <div key={name} style={{background:"#0a0a18",border:`1px solid ${blk>0?"#3a1515":"#1a1a30"}`,borderRadius:9,padding:"10px 16px",display:"flex",alignItems:"center",gap:14}}>
                     <div style={{width:28,height:28,borderRadius:7,background:"linear-gradient(135deg,#2d1e5a,#b44fff)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:600,color:"#cc99ff",flexShrink:0}}>{name[0]}</div>
                     <span style={{fontWeight:500,fontSize:13,width:60,flexShrink:0}}>{name}</span>
                     {/* Stacked workload bar */}
-                    <div style={{flex:1,height:6,borderRadius:3,overflow:"hidden",display:"flex",background:"#140f22",minWidth:60}}>
+                    <div style={{flex:1,height:6,borderRadius:3,overflow:"hidden",display:"flex",background:"#1a1a30",minWidth:60}}>
                       {tot>0&&[{n:dn,c:"#10b981"},{n:active,c:"#b44fff"},{n:blk,c:"#ef4444"},{n:td,c:"#2a2a3a"}].map((s,i)=>s.n>0&&(
                         <div key={i} style={{width:`${s.n/tot*100}%`,background:s.c}}></div>
                       ))}
@@ -1278,7 +1278,7 @@ function TimelineView({ tasks, requests }) {
           <span title={task.title}>{task.title}</span>
         </div>
         <div style={{flex:1,position:"relative",height:ROW_H}}>
-          <div style={{position:"absolute",top:"50%",left:0,right:0,height:1,background:"#140f22",transform:"translateY(-50%)"}}></div>
+          <div style={{position:"absolute",top:"50%",left:0,right:0,height:1,background:"#1a1a30",transform:"translateY(-50%)"}}></div>
           <div title={`${task.startDate} → ${task.endDate} · ${task.assignee}`} style={{position:"absolute",top:(ROW_H-16)/2,left:`${left}%`,width:`${width}%`,height:16,background:sm.line,borderRadius:4,opacity:.85,display:"flex",alignItems:"center",paddingLeft:5,overflow:"hidden",minWidth:4}}>
             <span style={{fontSize:10,color:"#fff",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{task.assignee}</span>
           </div>
@@ -1466,7 +1466,7 @@ function TaskModal({ task, tasks, requests, onSave, onDelete, onLink, unlinkDep,
           </F>
           {depNames.length>0&&(
             <F label="Task dependencies">
-              <div style={{background:"#100820",borderRadius:7,padding:"10px 12px",display:"flex",flexDirection:"column",gap:6}}>
+              <div style={{background:"#151528",borderRadius:7,padding:"10px 12px",display:"flex",flexDirection:"column",gap:6}}>
                 {depNames.map(({id,title})=>(
                   <div key={id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
                     <span style={{fontSize:12,color:"#cc99ff"}}>⬡ {title}</span>
@@ -1536,9 +1536,9 @@ function ReqModal({ req, tasks, onToggleTask, onSave, onDelete, onClose }) {
           {/* Task linker — only meaningful once the request exists */}
           <F label={`Tasks blocked by this request${blockedByThis.length?` (${blockedByThis.length})`:""}`}>
             {!isEdit
-              ? <div style={{fontSize:12,color:"#444458",padding:"8px 12px",background:"#100820",borderRadius:7}}>Save the request first, then link tasks to it.</div>
-              : <div style={{background:"#100820",borderRadius:7,overflow:"hidden",border:"1px solid #1e1430"}}>
-                  <div style={{padding:"8px 10px",borderBottom:"1px solid #1e1430"}}>
+              ? <div style={{fontSize:12,color:"#444458",padding:"8px 12px",background:"#151528",borderRadius:7}}>Save the request first, then link tasks to it.</div>
+              : <div style={{background:"#151528",borderRadius:7,overflow:"hidden",border:"1px solid #252540"}}>
+                  <div style={{padding:"8px 10px",borderBottom:"1px solid #252540"}}>
                     <input className="inp" style={{background:"transparent",border:"none",padding:"0",fontSize:12}} placeholder="Filter tasks…" value={taskSearch} onChange={e=>setTaskSearch(e.target.value)} />
                   </div>
                   <div style={{height:180,overflowY:"auto",padding:"4px 0"}}>
@@ -1550,7 +1550,7 @@ function ReqModal({ req, tasks, onToggleTask, onSave, onDelete, onClose }) {
                       return(
                         <div key={t.id} onClick={()=>onToggleTask(t.id,req.id,!isLinked)}
                           style={{display:"flex",alignItems:"center",gap:10,padding:"7px 12px",cursor:"pointer",transition:"background .1s",background:isLinked?"#1a1040":"transparent"}}
-                          onMouseEnter={e=>e.currentTarget.style.background=isLinked?"#1e1448":"#140f22"}
+                          onMouseEnter={e=>e.currentTarget.style.background=isLinked?"#1e1448":"#1a1a30"}
                           onMouseLeave={e=>e.currentTarget.style.background=isLinked?"#1a1040":"transparent"}>
                           {/* Checkbox */}
                           <div style={{width:16,height:16,borderRadius:4,border:`1.5px solid ${isLinked?"#b44fff":"#3a3a50"}`,background:isLinked?"#b44fff":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .15s"}}>
@@ -1567,7 +1567,7 @@ function ReqModal({ req, tasks, onToggleTask, onSave, onDelete, onClose }) {
                     })}
                   </div>
                   {blockedByThis.length>0&&(
-                    <div style={{padding:"6px 12px",borderTop:"1px solid #1e1430",fontSize:11,color:"#5a4870"}}>
+                    <div style={{padding:"6px 12px",borderTop:"1px solid #252540",fontSize:11,color:"#5a4870"}}>
                       {blockedByThis.length} task{blockedByThis.length!==1?"s":""} waiting on this request
                     </div>
                   )}
@@ -1594,7 +1594,7 @@ function ExportModal({ md, onClose }) {
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="mbox" style={{width:640}}>
         <div style={{fontWeight:600,fontSize:16,marginBottom:16}}>Export to Markdown</div>
-        <textarea value={md} readOnly style={{background:"#06040f",border:"1px solid #1e1430",borderRadius:7,color:"#7a9e7a",fontFamily:"'DM Mono',monospace",fontSize:12,padding:14,width:"100%",height:300,resize:"none",outline:"none"}} />
+        <textarea value={md} readOnly style={{background:"#06040f",border:"1px solid #252540",borderRadius:7,color:"#7a9e7a",fontFamily:"'DM Mono',monospace",fontSize:12,padding:14,width:"100%",height:300,resize:"none",outline:"none"}} />
         <div style={{display:"flex",gap:8,marginTop:16,justifyContent:"flex-end"}}>
           <button className="btn g" onClick={onClose}>Close</button>
           <button className="btn p" onClick={copy}>{copied?"✓ Copied!":"Copy to clipboard"}</button>
@@ -1610,10 +1610,10 @@ function ExportModal({ md, onClose }) {
 function PowerupsModal({ powerups, setPowerups, onClose }) {
   const set=(k,v)=>setPowerups(p=>({...p,[k]:v}));
   const Toggle=({k,label,desc})=>(
-    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,padding:"12px 0",borderBottom:"1px solid #1e1430"}}>
+    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,padding:"12px 0",borderBottom:"1px solid #252540"}}>
       <div>
         <div style={{fontSize:13,fontWeight:500,color:"#e8e6f0",marginBottom:2}}>{label}</div>
-        <div style={{fontSize:11,color:"#b8a8d0"}}>{desc}</div>
+        <div style={{fontSize:11,color:"#c8c4e8"}}>{desc}</div>
       </div>
       <div onClick={()=>set(k,!powerups[k])} style={{width:36,height:20,borderRadius:10,background:powerups[k]?"#b44fff":"#2a2a38",cursor:"pointer",position:"relative",transition:"background .2s",flexShrink:0,marginTop:2}}>
         <div style={{position:"absolute",top:2,left:powerups[k]?18:2,width:16,height:16,borderRadius:"50%",background:"#fff",transition:"left .2s"}}></div>
@@ -1630,8 +1630,8 @@ function PowerupsModal({ powerups, setPowerups, onClose }) {
         <Toggle k="autoReview"  label="Auto → In Review"    desc="When all checklist items are checked, automatically move card to In Review" />
         <Toggle k="staleAlert"    label="Stale alert"         desc={`Flag cards with no activity after ${powerups.staleDays} days`} />
         {powerups.staleAlert&&(
-          <div style={{padding:"8px 0 12px 0",borderBottom:"1px solid #1e1430",display:"flex",alignItems:"center",gap:10}}>
-            <span style={{fontSize:12,color:"#b8a8d0"}}>Stale after</span>
+          <div style={{padding:"8px 0 12px 0",borderBottom:"1px solid #252540",display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:12,color:"#c8c4e8"}}>Stale after</span>
             {[3,5,7,14].map(d=>(
               <button key={d} onClick={()=>set("staleDays",d)} style={{padding:"3px 10px",borderRadius:5,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",background:powerups.staleDays===d?"#b44fff":"#1a1a24",borderColor:powerups.staleDays===d?"#b44fff":"#2a2a38",color:powerups.staleDays===d?"#fff":"#d0c8e8"}}>{d}d</button>
             ))}
@@ -1639,8 +1639,8 @@ function PowerupsModal({ powerups, setPowerups, onClose }) {
         )}
         <Toggle k="autoAssign"    label="Auto-assign on In Progress" desc="When a card moves to In Progress, assign it to a specific person" />
         {powerups.autoAssign&&(
-          <div style={{padding:"8px 0 12px 0",borderBottom:"1px solid #1e1430",display:"flex",alignItems:"center",gap:10}}>
-            <span style={{fontSize:12,color:"#b8a8d0"}}>Assign to</span>
+          <div style={{padding:"8px 0 12px 0",borderBottom:"1px solid #252540",display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:12,color:"#c8c4e8"}}>Assign to</span>
             <select className="inp" style={{width:"auto"}} value={powerups.autoAssignee||TEAM[0]} onChange={e=>set("autoAssignee",e.target.value)}>
               {TEAM.map(a=><option key={a}>{a}</option>)}
             </select>
@@ -1650,7 +1650,7 @@ function PowerupsModal({ powerups, setPowerups, onClose }) {
         <div style={{padding:"12px 0",display:"flex",alignItems:"center",gap:10}}>
           <div style={{flex:1}}>
             <div style={{fontSize:13,fontWeight:500,color:"#e8e6f0",marginBottom:2}}>Due soon warning</div>
-            <div style={{fontSize:11,color:"#b8a8d0"}}>Show warning badge N days before due date</div>
+            <div style={{fontSize:11,color:"#c8c4e8"}}>Show warning badge N days before due date</div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             {[1,2,3,5].map(d=>(
@@ -1712,7 +1712,7 @@ function StandupModal({ tasks, onClose }) {
             const recentDone=mine.filter(t=>t.status==="Done"&&t.lastMoved&&new Date(t.lastMoved).toISOString().slice(0,10)>=yesterday);
             if(!active.length&&!inReview.length&&!blocked.length&&!recentDone.length) return null;
             return(
-              <div key={person} style={{background:"#12121a",border:"1px solid #1e1430",borderRadius:10,padding:"12px 16px"}}>
+              <div key={person} style={{background:"#12121a",border:"1px solid #252540",borderRadius:10,padding:"12px 16px"}}>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
                   <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#2d1e5a,#b44fff)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:600,color:"#c4b5fd"}}>{person[0]}</div>
                   <span style={{fontWeight:500,fontSize:14}}>{person}</span>

@@ -304,10 +304,8 @@ export default function App() {
       <style>{GLOBAL_CSS}</style>
       <NightrunBg />
 
-      {/* Animated streak bar */}
-      <div style={{height:2,position:"relative",overflow:"hidden",background:"#0c0818",zIndex:51}}>
-        <div className="nr-streak" style={{position:"absolute",top:0,width:"35%",height:"100%",background:"linear-gradient(90deg,transparent,#b44fff,#00d4ff,transparent)"}} />
-      </div>
+      {/* Static gradient top bar */}
+      <div style={{height:2,background:"linear-gradient(90deg,#b44fff,#00d4ff)",zIndex:51}} />
 
       {/* Header */}
       <div style={{borderBottom:"1px solid #1e1430",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:2,background:"rgba(6,4,15,0.92)",backdropFilter:"blur(12px)",zIndex:50}}>

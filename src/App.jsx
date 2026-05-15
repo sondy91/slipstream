@@ -62,9 +62,9 @@ const LABEL_META = {
 };
 
 const STATUS_META = {
-  "Todo":        { color:"#9ca3af", dot:"#6b7280", line:"#6b7280" },
-  "In Progress": { color:"#cc99ff", dot:"#b44fff", line:"#b44fff" },
-  "Blocked":     { color:"#fca5a5", dot:"#ef4444", line:"#ef4444" },
+  "Todo":        { color:"#5a4870", dot:"#5a4870", line:"#5a4870" },
+  "In Progress": { color:"#00d4ff", dot:"#00d4ff", line:"#00d4ff" },
+  "Blocked":     { color:"#ff3d6e", dot:"#ff3d6e", line:"#ff3d6e" },
   "Done":        { color:"#6ee7b7", dot:"#10b981", line:"#10b981" },
 };
 
@@ -146,8 +146,8 @@ textarea.inp{resize:vertical;min-height:64px;}
 .pf{height:100%;border-radius:2px;background:linear-gradient(90deg,#b44fff,#00d4ff);transition:width .4s;}
 .dc{border-color:#b44fff!important;background:#0e0820!important;}
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
-.badge{display:inline-flex;align-items:center;justify-content:center;padding:2px 0;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.06em;font-family:'Rajdhani',sans-serif;min-width:32px;flex-shrink:0;}
-.chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.06em;}
+.badge{display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:.06em;font-family:'Rajdhani',sans-serif;flex-shrink:0;min-width:26px;}
+.chip{display:inline-flex;align-items:center;padding:3px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.06em;}
 `;
 
 /* ═══════════════════════════════════════════════════════════════
@@ -451,7 +451,7 @@ function BoardCardContent({ task, requests, linkMode, isOverlay }) {
       <div style={{position:"absolute",top:0,left:0,bottom:0,width:2,background:sm.line,boxShadow:`0 0 8px ${sm.line}`,borderRadius:"10px 0 0 10px"}} />
       <div style={{paddingLeft:6,display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:8}}>
         <span style={{fontSize:13,fontWeight:500,lineHeight:1.4,color:task.status==="Done"?"#3a3055":"#f0e8ff",textDecoration:task.status==="Done"?"line-through":"none",flex:1}}>{task.title}</span>
-        <span className="badge" style={{background:pm.bg,color:pm.color,flexShrink:0}}>{task.priority}</span>
+        <span className="badge" style={{color:pm.color}}>{task.priority}</span>
       </div>
       <div style={{paddingLeft:6,display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:blockedReqs.length?6:0}}>
         <span style={{fontSize:11,color:"#5a4870",background:"#100820",padding:"2px 8px",borderRadius:4}}>{task.assignee}</span>
@@ -607,12 +607,12 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
                 onClick={()=>onCardClick(task.id,"task")}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:6,marginBottom:6}}>
                   <span style={{fontSize:12,fontWeight:500,lineHeight:1.35,color:task.status==="Done"?"#3a3055":"#e0ddf0",flex:1}}>{task.title}</span>
-                  <span className="badge" style={{background:pm.bg,color:pm.color,fontSize:10}}>{task.priority}</span>
+                  <span className="badge" style={{color:pm.color}}>{task.priority}</span>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                   <span className="dot" style={{background:sm.dot,width:6,height:6}}></span>
                   <span style={{fontSize:11,color:sm.color}}>{task.status}</span>
-                  {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,fontSize:10}}>{task.label}</span>}
+                  {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,border:`1px solid ${lm.color}55`}}>{task.label}</span>}
                   <span style={{marginLeft:"auto",fontSize:11,color:"#3a3055"}}>{task.assignee}</span>
                 </div>
               </div>
@@ -947,7 +947,7 @@ function TimelineView({ tasks, requests }) {
     return(
       <div key={task.id} style={{display:"flex",alignItems:"center",marginBottom:CHART_GAP,height:ROW_H}}>
         <div style={{width:LABEL_W-2,flexShrink:0,fontSize:12,color:"#8a80a8",textAlign:"right",paddingRight:10,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"flex",alignItems:"center",justifyContent:"flex-end",gap:5}}>
-          {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,fontSize:9}}>{task.label}</span>}
+          {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,border:`1px solid ${lm.color}55`}}>{task.label}</span>}
           <span title={task.title}>{task.title}</span>
         </div>
         <div style={{flex:1,position:"relative",height:ROW_H}}>
@@ -1164,7 +1164,7 @@ function ReqModal({ req, tasks, onToggleTask, onSave, onDelete, onClose }) {
                           <span className="dot" style={{background:sm.dot,width:6,height:6,flexShrink:0}}></span>
                           <span style={{fontSize:12,flex:1,color:isLinked?"#cc99ff":"#8a80a8"}}>{t.title}</span>
                           <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
-                            {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,fontSize:10}}>{t.label}</span>}
+                            {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,border:`1px solid ${lm.color}55`}}>{t.label}</span>}
                             <span style={{fontSize:11,color:"#3a3055"}}>{t.assignee}</span>
                           </div>
                         </div>

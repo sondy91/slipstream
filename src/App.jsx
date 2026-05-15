@@ -113,6 +113,9 @@ const GLOBAL_CSS = `
 @keyframes dashflow{from{stroke-dashoffset:24;}to{stroke-dashoffset:0;}}
 .dep-flow{stroke-dasharray:8 5;animation:dashflow 0.9s linear infinite;will-change:stroke-dashoffset;}
 
+@keyframes nr-streak{from{transform:translateX(-140%)}to{transform:translateX(280%)}}
+.nr-streak{animation:nr-streak 2.8s linear infinite;}
+
 .vbtn{background:none;border:none;cursor:pointer;padding:6px 14px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:600;color:#5a4870;transition:all .15s;letter-spacing:.04em;}
 .vbtn.act{background:#140f22;color:#f0e8ff;}
 .vbtn:hover:not(.act){color:#c4b5ff;}
@@ -124,7 +127,7 @@ const GLOBAL_CSS = `
 .ltgt:hover{border-color:#10b981!important;box-shadow:0 0 0 2px rgba(16,185,129,.3)!important;}
 
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .15s;letter-spacing:.04em;}
-.p{background:linear-gradient(135deg,#b44fff,#00d4ff40);color:#fff;border:1px solid #b44fff55;}.p:hover{background:linear-gradient(135deg,#a040e8,#00d4ff60);box-shadow:0 0 16px rgba(180,79,255,.3);}
+.p{background:linear-gradient(135deg,#b44fff,#00d4ff);color:#fff;border:none;text-shadow:0 1px 4px rgba(0,0,0,.3);}.p:hover{background:linear-gradient(135deg,#a040e8,#00bfee);box-shadow:0 0 20px rgba(180,79,255,.4);}
 .g{background:#140f22;color:#8a80a8;border:1px solid #1e1430;}.g:hover{background:#1a1430;color:#f0e8ff;}
 .dr{background:#1e1010;color:#ef4444;border:1px solid #3a1515;}.dr:hover{background:#2a1515;}
 .sm{padding:4px 10px!important;font-size:12px!important;border-radius:5px!important;}
@@ -301,17 +304,23 @@ export default function App() {
       <style>{GLOBAL_CSS}</style>
       <NightrunBg />
 
+      {/* Animated streak bar */}
+      <div style={{height:2,position:"relative",overflow:"hidden",background:"#0c0818",zIndex:51}}>
+        <div className="nr-streak" style={{position:"absolute",top:0,width:"35%",height:"100%",background:"linear-gradient(90deg,transparent,#b44fff,#00d4ff,transparent)"}} />
+      </div>
+
       {/* Header */}
-      <div style={{borderBottom:"1px solid #1e1430",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,background:"rgba(6,4,15,0.92)",backdropFilter:"blur(12px)",zIndex:50}}>
+      <div style={{borderBottom:"1px solid #1e1430",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:2,background:"rgba(6,4,15,0.92)",backdropFilter:"blur(12px)",zIndex:50}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
           <svg width="28" height="28" viewBox="0 0 28 28">
             <defs><linearGradient id="hdr-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#b44fff"/><stop offset="100%" stopColor="#00d4ff"/></linearGradient></defs>
             <path d="M14 2 L26 24 L14 19 L2 24 Z" fill="none" stroke="url(#hdr-grad)" strokeWidth="1.5" strokeLinejoin="round"/>
             <path d="M14 2 L14 19" stroke="url(#hdr-grad)" strokeWidth="1" opacity="0.5"/>
           </svg>
-          <span style={{fontWeight:700,fontSize:16,letterSpacing:"0.12em",textTransform:"uppercase",background:"linear-gradient(90deg,#b44fff,#00d4ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Slipstream</span>
-          <span style={{color:"#1e1430"}}>—</span>
-          <span style={{color:"#3a3055",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase"}}>Flow Ops</span>
+          <div>
+            <div style={{fontWeight:700,fontSize:16,letterSpacing:"0.18em",textTransform:"uppercase",background:"linear-gradient(90deg,#b44fff,#00d4ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",lineHeight:1}}>Slipstream</div>
+            <div style={{fontSize:9,color:"#5a4870",letterSpacing:"0.25em",textTransform:"uppercase",marginTop:3,fontFamily:"'Inter Tight',sans-serif"}}>zero friction · max velocity</div>
+          </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(6,4,15,0.7)",border:"1px solid #1e1430",borderRadius:8,padding:3}}>
           {[["board","⬚ Board"],["plan","⬡ Plan"],["requests","⇄ Requests"],["lead","◈ Leadership"]].map(([v,l])=>(
@@ -435,13 +444,16 @@ function BoardCardContent({ task, requests, linkMode, isOverlay }) {
   const isSrc=linkMode?.sourceId===task.id;
   const isTgt=linkMode&&!isSrc;
   const blockedReqs=(task.reqDeps||[]).map(rid=>requests.find(r=>r.id===rid)).filter(Boolean);
+  const sm=STATUS_META[task.status];
   return(
     <div className={`card${isSrc?" lsrc":""}${isTgt?" ltgt":""}`} style={isOverlay?{boxShadow:"0 12px 40px rgba(180,79,255,0.3)",border:"1px solid #b44fff88",cursor:"grabbing"}:{}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:8}}>
+      {/* Status-colored left glow bar */}
+      <div style={{position:"absolute",top:0,left:0,bottom:0,width:2,background:sm.line,boxShadow:`0 0 8px ${sm.line}`,borderRadius:"10px 0 0 10px"}} />
+      <div style={{paddingLeft:6,display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:8}}>
         <span style={{fontSize:13,fontWeight:500,lineHeight:1.4,color:task.status==="Done"?"#3a3055":"#f0e8ff",textDecoration:task.status==="Done"?"line-through":"none",flex:1}}>{task.title}</span>
         <span className="badge" style={{background:pm.bg,color:pm.color,flexShrink:0}}>{task.priority}</span>
       </div>
-      <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:blockedReqs.length?6:0}}>
+      <div style={{paddingLeft:6,display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:blockedReqs.length?6:0}}>
         <span style={{fontSize:11,color:"#5a4870",background:"#100820",padding:"2px 8px",borderRadius:4}}>{task.assignee}</span>
         {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,border:`1px solid ${lm.color}44`}}>{task.label}</span>}
         {(task.deps||[]).length>0&&<span style={{fontSize:11,color:"#b44fff"}}>⬡ {task.deps.length}</span>}

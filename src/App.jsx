@@ -127,14 +127,12 @@ export default function App() {
   useEffect(()=>{
     const PMAP={"P0":"H+","P1":"H","P2":"M"};
     const migrate=t=>({...t, priority: PMAP[t.priority]||t.priority, deps:t.deps||[], reqDeps:t.reqDeps||[]});
-    (async()=>{
-      try{ const r=await window.storage.get("mx-tasks"); if(r) setTasks(JSON.parse(r.value).map(migrate)); }catch{}
-      try{ const r=await window.storage.get("mx-reqs");  if(r) setRequests(JSON.parse(r.value)); }catch{}
-    })();
+    try{ const r=localStorage.getItem("mx-tasks"); if(r) setTasks(JSON.parse(r).map(migrate)); }catch{}
+    try{ const r=localStorage.getItem("mx-reqs");  if(r) setRequests(JSON.parse(r)); }catch{}
   },[]);
 
-  const saveTasks=useCallback(async t=>{ setTasks(t); try{await window.storage.set("mx-tasks",JSON.stringify(t));}catch{} },[]);
-  const saveReqs =useCallback(async r=>{ setRequests(r); try{await window.storage.set("mx-reqs", JSON.stringify(r));}catch{} },[]);
+  const saveTasks=useCallback(t=>{ setTasks(t); try{localStorage.setItem("mx-tasks",JSON.stringify(t));}catch{} },[]);
+  const saveReqs =useCallback(r=>{ setRequests(r); try{localStorage.setItem("mx-reqs", JSON.stringify(r));}catch{} },[]);
 
   const updateTask=(id,p)=>saveTasks(tasks.map(t=>t.id===id?{...t,...p}:t));
   const addTask   =(d)  =>saveTasks([...tasks,{...mkTask(),...d}]);

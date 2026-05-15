@@ -172,8 +172,8 @@ function TunnelSplash({ onEnter }) {
       camera.position.y = Math.cos(frame * 0.006) * 0.08;
       camera.lookAt(camera.position.x * 0.5, camera.position.y * 0.5, -5);
 
-      if (frame > 80)  logoAlpha = Math.min(1, logoAlpha + 0.02);
-      if (frame > 140) tagAlpha  = Math.min(1, tagAlpha  + 0.016);
+      if (frame > 20)  logoAlpha = Math.min(1, logoAlpha + 0.05);
+      if (frame > 50)  tagAlpha  = Math.min(1, tagAlpha  + 0.04);
 
       // Show clickable CTA once fully faded in
       if (tagAlpha >= 0.99 && !showCTARef.current) {

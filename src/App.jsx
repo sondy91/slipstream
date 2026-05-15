@@ -309,7 +309,7 @@ export default function App() {
 
       {/* Header */}
       <div style={{borderBottom:"1px solid #1e1430",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:2,background:"rgba(6,4,15,0.92)",backdropFilter:"blur(12px)",zIndex:50}}>
-        <div style={{display:"flex",alignItems:"center",gap:12}}>
+        <div style={{flex:1,display:"flex",alignItems:"center",gap:12}}>
           <svg width="28" height="28" viewBox="0 0 28 28">
             <defs><linearGradient id="hdr-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#b44fff"/><stop offset="100%" stopColor="#00d4ff"/></linearGradient></defs>
             <path d="M14 2 L26 24 L14 19 L2 24 Z" fill="none" stroke="url(#hdr-grad)" strokeWidth="1.5" strokeLinejoin="round"/>
@@ -325,7 +325,7 @@ export default function App() {
             <button key={v} className={`vbtn${view===v?" act":""}`} onClick={()=>setView(v)}>{l}</button>
           ))}
         </div>
-        <div style={{display:"flex",gap:8}}>
+        <div style={{flex:1,display:"flex",justifyContent:"flex-end",gap:8}}>
           <button className="btn g" onClick={()=>setExportOpen(true)}>↓ Export</button>
           {view==="requests"
             ?<button className="btn p" onClick={()=>setNewReq(true)}>+ New request</button>

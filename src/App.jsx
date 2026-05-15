@@ -1,5 +1,41 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
+/* ── Nightrun canvas background ── */
+function NightrunBg() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let W, H;
+    const resize = () => { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; };
+    resize();
+    window.addEventListener("resize", resize);
+    const lines = Array.from({length:20}, () => ({
+      x: Math.random() * (typeof W !== 'undefined' ? W : window.innerWidth),
+      speed: 0.5 + Math.random() * 1.5,
+      opacity: Math.random() * 0.08 + 0.02,
+    }));
+    let raf;
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      const grad = ctx.createRadialGradient(W/2, H*0.4, 0, W/2, H*0.4, W*0.6);
+      grad.addColorStop(0, "rgba(180,50,255,0.04)");
+      grad.addColorStop(1, "transparent");
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+      lines.forEach(l => {
+        ctx.beginPath(); ctx.moveTo(l.x, 0); ctx.lineTo(l.x - 1, H);
+        ctx.strokeStyle = `rgba(160,80,255,${l.opacity})`; ctx.lineWidth = 0.5; ctx.stroke();
+        l.x -= l.speed; if (l.x < 0) l.x = W;
+      });
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
+  }, []);
+  return <canvas ref={canvasRef} style={{position:"fixed",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:0}} />;
+}
+
 /* ── Constants ── */
 const TEAM        = ["Austin","Maya","Jordan","Sam","Riley"];
 const PRIORITIES  = ["H+","H","M","L","L-"];
@@ -13,11 +49,11 @@ const PRIORITY_META = {
   "H":  { color:"#f97316", bg:"#2a1a0a", label:"High"     },
   "M":  { color:"#eab308", bg:"#2a2004", label:"Medium"   },
   "L":  { color:"#3b82f6", bg:"#0d1e3a", label:"Low"      },
-  "L-": { color:"#6b7280", bg:"#1a1a24", label:"Lowest"   },
+  "L-": { color:"#6b7280", bg:"#100820", label:"Lowest"   },
 };
 
 const LABEL_META = {
-  feature:{ color:"#a78bfa", bg:"#1e1040" },
+  feature:{ color:"#cc99ff", bg:"#1e1040" },
   bug:    { color:"#f87171", bg:"#2a0e0e" },
   infra:  { color:"#34d399", bg:"#052018" },
   docs:   { color:"#60a5fa", bg:"#0a1e38" },
@@ -26,14 +62,14 @@ const LABEL_META = {
 
 const STATUS_META = {
   "Todo":        { color:"#9ca3af", dot:"#6b7280", line:"#6b7280" },
-  "In Progress": { color:"#a78bfa", dot:"#7c3aed", line:"#7c3aed" },
+  "In Progress": { color:"#cc99ff", dot:"#b44fff", line:"#b44fff" },
   "Blocked":     { color:"#fca5a5", dot:"#ef4444", line:"#ef4444" },
   "Done":        { color:"#6ee7b7", dot:"#10b981", line:"#10b981" },
 };
 
 const EXT_STATUS_META = {
-  "Pending":   { color:"#9ca3af", bg:"#1e1e2a" },
-  "In Review": { color:"#a78bfa", bg:"#1a1030" },
+  "Pending":   { color:"#9ca3af", bg:"#140f22" },
+  "In Review": { color:"#cc99ff", bg:"#1a1030" },
   "Approved":  { color:"#6ee7b7", bg:"#0a2018" },
   "Rejected":  { color:"#fca5a5", bg:"#2a1010" },
   "On Hold":   { color:"#f97316", bg:"#1e1208" },
@@ -66,47 +102,48 @@ const SEED_REQS=[R0,R1,R2];
    GLOBAL CSS — animation lives here once, never re-injected
 ═══════════════════════════════════════════════════════════════ */
 const GLOBAL_CSS = `
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter+Tight:wght@300;400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:#2a2a35;border-radius:2px;}
+::-webkit-scrollbar-thumb{background:#1e1430;border-radius:2px;}
 
 /* Single global dashflow — one animation, never restarted */
 @keyframes dashflow{from{stroke-dashoffset:24;}to{stroke-dashoffset:0;}}
 .dep-flow{stroke-dasharray:8 5;animation:dashflow 0.9s linear infinite;will-change:stroke-dashoffset;}
 
-.vbtn{background:none;border:none;cursor:pointer;padding:6px 14px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:500;color:#7a7890;transition:all .15s;}
-.vbtn.act{background:#1e1e2a;color:#e8e6f0;}
-.vbtn:hover:not(.act){color:#c4c0d8;}
+.vbtn{background:none;border:none;cursor:pointer;padding:6px 14px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:600;color:#5a4870;transition:all .15s;letter-spacing:.04em;}
+.vbtn.act{background:#140f22;color:#f0e8ff;}
+.vbtn:hover:not(.act){color:#c4b5ff;}
 
-.card{background:#16161f;border:1px solid #23232e;border-radius:10px;padding:12px 14px;transition:border-color .15s,box-shadow .15s,transform .15s;cursor:pointer;}
-.card:hover{border-color:#3a3a50;transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.3);}
-.lsrc{border-color:#7c3aed!important;box-shadow:0 0 0 2px rgba(124,58,237,.3)!important;}
+.card{background:#0c0818;border:1px solid #1e1430;border-radius:10px;padding:12px 14px;transition:border-color .2s,box-shadow .2s,transform .15s;cursor:pointer;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:currentColor;opacity:0;transition:opacity .2s;}
+.card:hover{border-color:#b44fff55;transform:translateY(-1px);box-shadow:0 4px 24px rgba(180,79,255,.18);}
+.lsrc{border-color:#b44fff!important;box-shadow:0 0 0 2px rgba(180,79,255,.3)!important;}
 .ltgt:hover{border-color:#10b981!important;box-shadow:0 0 0 2px rgba(16,185,129,.3)!important;}
 
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:all .15s;}
-.p{background:#7c3aed;color:#fff;}.p:hover{background:#6d28d9;}
-.g{background:#1e1e2a;color:#a09cb8;border:1px solid #2a2a38;}.g:hover{background:#252533;color:#e8e6f0;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .15s;letter-spacing:.04em;}
+.p{background:linear-gradient(135deg,#b44fff,#00d4ff40);color:#fff;border:1px solid #b44fff55;}.p:hover{background:linear-gradient(135deg,#a040e8,#00d4ff60);box-shadow:0 0 16px rgba(180,79,255,.3);}
+.g{background:#140f22;color:#8a80a8;border:1px solid #1e1430;}.g:hover{background:#1a1430;color:#f0e8ff;}
 .dr{background:#1e1010;color:#ef4444;border:1px solid #3a1515;}.dr:hover{background:#2a1515;}
 .sm{padding:4px 10px!important;font-size:12px!important;border-radius:5px!important;}
 
 .fl{display:flex;flex-direction:column;gap:5px;}
-.fl label{font-size:11px;font-weight:600;color:#555570;text-transform:uppercase;letter-spacing:.06em;}
-.inp{background:#1a1a24;border:1px solid #2a2a38;border-radius:7px;color:#e8e6f0;font-family:inherit;font-size:13px;padding:8px 12px;width:100%;outline:none;transition:border .15s;}
-.inp:focus{border-color:#7c3aed;}
-select.inp option{background:#1a1a24;}
+.fl label{font-size:11px;font-weight:600;color:#5a4870;text-transform:uppercase;letter-spacing:.06em;}
+.inp{background:#100820;border:1px solid #1e1430;border-radius:7px;color:#f0e8ff;font-family:inherit;font-size:13px;padding:8px 12px;width:100%;outline:none;transition:border .15s;}
+.inp:focus{border-color:#b44fff;box-shadow:0 0 0 2px rgba(180,79,255,.15);}
+select.inp option{background:#100820;}
 textarea.inp{resize:vertical;min-height:64px;}
 
-.mbg{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
-.mbox{background:#16161f;border:1px solid #2a2a38;border-radius:14px;padding:24px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.mbg{position:fixed;inset:0;background:rgba(4,2,14,.85);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(8px);}
+.mbox{background:#0c0818;border:1px solid #1e1430;border-radius:14px;padding:24px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);}
 
-.pb{height:4px;background:#1e1e2a;border-radius:2px;overflow:hidden;}
-.pf{height:100%;border-radius:2px;background:linear-gradient(90deg,#7c3aed,#a78bfa);transition:width .4s;}
-.dc{border-color:#7c3aed!important;background:#1a1428!important;}
+.pb{height:4px;background:#140f22;border-radius:2px;overflow:hidden;}
+.pf{height:100%;border-radius:2px;background:linear-gradient(90deg,#b44fff,#00d4ff);transition:width .4s;}
+.dc{border-color:#b44fff!important;background:#0e0820!important;}
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
-.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.02em;font-family:'DM Mono',monospace;}
-.chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.02em;}
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.04em;font-family:'Rajdhani',sans-serif;}
+.chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.04em;}
 `;
 
 /* ═══════════════════════════════════════════════════════════════
@@ -259,18 +296,23 @@ export default function App() {
   };
 
   return(
-    <div style={{fontFamily:"'DM Sans','Helvetica Neue',sans-serif",background:"#0f0f13",minHeight:"100vh",color:"#e8e6f0"}}>
+    <div style={{fontFamily:"'Rajdhani','Inter Tight','Helvetica Neue',sans-serif",background:"#06040f",minHeight:"100vh",color:"#f0e8ff",position:"relative"}}>
       <style>{GLOBAL_CSS}</style>
+      <NightrunBg />
 
       {/* Header */}
-      <div style={{borderBottom:"1px solid #1e1e2a",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,background:"#0f0f13",zIndex:50}}>
+      <div style={{borderBottom:"1px solid #1e1430",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,background:"rgba(6,4,15,0.92)",backdropFilter:"blur(12px)",zIndex:50}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <div style={{width:28,height:28,background:"linear-gradient(135deg,#7c3aed,#a78bfa)",borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>⬡</div>
-          <span style={{fontWeight:600,fontSize:15,letterSpacing:"-0.02em"}}>Slipstream</span>
-          <span style={{color:"#2a2a38"}}>—</span>
-          <span style={{color:"#444458",fontSize:12}}>Task Tracker</span>
+          <svg width="28" height="28" viewBox="0 0 28 28">
+            <defs><linearGradient id="hdr-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#b44fff"/><stop offset="100%" stopColor="#00d4ff"/></linearGradient></defs>
+            <path d="M14 2 L26 24 L14 19 L2 24 Z" fill="none" stroke="url(#hdr-grad)" strokeWidth="1.5" strokeLinejoin="round"/>
+            <path d="M14 2 L14 19" stroke="url(#hdr-grad)" strokeWidth="1" opacity="0.5"/>
+          </svg>
+          <span style={{fontWeight:700,fontSize:16,letterSpacing:"0.12em",textTransform:"uppercase",background:"linear-gradient(90deg,#b44fff,#00d4ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Slipstream</span>
+          <span style={{color:"#1e1430"}}>—</span>
+          <span style={{color:"#3a3055",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase"}}>Flow Ops</span>
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:4,background:"#0c0c12",border:"1px solid #1e1e2a",borderRadius:8,padding:3}}>
+        <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(6,4,15,0.7)",border:"1px solid #1e1430",borderRadius:8,padding:3}}>
           {[["board","⬚ Board"],["plan","⬡ Plan"],["requests","⇄ Requests"],["lead","◈ Leadership"]].map(([v,l])=>(
             <button key={v} className={`vbtn${view===v?" act":""}`} onClick={()=>setView(v)}>{l}</button>
           ))}
@@ -285,8 +327,8 @@ export default function App() {
 
       {linkMode&&(
         <div style={{background:"#1a0d3a",borderBottom:"1px solid #5b21b6",padding:"10px 24px",display:"flex",alignItems:"center",gap:12,fontSize:13}}>
-          <span style={{color:"#a78bfa"}}>🔗 Link mode —</span>
-          <span style={{color:"#c4b5fd"}}>
+          <span style={{color:"#cc99ff"}}>🔗 Link mode —</span>
+          <span style={{color:"#cc99ff"}}>
             {linkMode.sourceType==="req"
               ? <>Click a <strong>task</strong> to mark it as blocked by request "<strong>{requests.find(r=>r.id===linkMode.sourceId)?.title}</strong>"</>
               : <>Click any card to link to "<strong>{tasks.find(t=>t.id===linkMode.sourceId)?.title}</strong>"</>}
@@ -295,7 +337,7 @@ export default function App() {
         </div>
       )}
 
-      <div style={{padding:"20px 24px"}}>
+      <div style={{padding:"20px 24px",position:"relative",zIndex:1}}>
         {view==="board"    &&<BoardView    tasks={tasks} requests={requests} updateTask={updateTask} filterBy={filterBy} setFilterBy={setFilterBy} onCardClick={handleCardClick} linkMode={linkMode} />}
         {view==="plan"     &&<PlanView     tasks={tasks} requests={requests} onCardClick={handleCardClick} linkMode={linkMode} setLinkMode={setLinkMode} unlinkDep={unlinkDep} unlinkReqDep={unlinkReqDep} />}
         {view==="requests" &&<RequestsView requests={requests} tasks={tasks} onEdit={r=>handleCardClick(r.id,"req")} linkMode={linkMode} />}
@@ -324,20 +366,20 @@ function BoardView({ tasks, requests, updateTask, filterBy, setFilterBy, onCardC
   return(
     <div>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:20,flexWrap:"wrap"}}>
-        <span style={{fontSize:12,color:"#555570"}}>Assignee:</span>
+        <span style={{fontSize:12,color:"#5a4870"}}>Assignee:</span>
         {["All",...TEAM].map(a=>(
-          <button key={a} onClick={()=>setFilterBy(a)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:filterBy===a?"#7c3aed":"#1a1a24",borderColor:filterBy===a?"#7c3aed":"#2a2a38",color:filterBy===a?"#fff":"#7a7890"}}>{a}</button>
+          <button key={a} onClick={()=>setFilterBy(a)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:filterBy===a?"#b44fff":"#100820",borderColor:filterBy===a?"#b44fff":"#1e1430",color:filterBy===a?"#fff":"#7a7890"}}>{a}</button>
         ))}
         <span style={{marginLeft:"auto",fontSize:12,color:"#444458"}}>{filtered.length} tasks</span>
       </div>
       <div style={{display:"grid",gridTemplateColumns:`repeat(${cols.length},1fr)`,gap:12}}>
         {cols.map(col=>(
-          <div key={col.key} className={dragOver===col.key?"dc":""} style={{background:"#12121a",border:"1px solid #1e1e2a",borderRadius:12,padding:12,minHeight:280,transition:"all .15s"}}
+          <div key={col.key} className={dragOver===col.key?"dc":""} style={{background:"#080610",border:"1px solid #140f22",borderRadius:12,padding:12,minHeight:280,transition:"all .15s"}}
             onDragOver={e=>{e.preventDefault();setDragOver(col.key);}} onDrop={()=>drop(col.key)} onDragLeave={()=>setDragOver(null)}>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,paddingBottom:10,borderBottom:"1px solid #1e1e2a"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,paddingBottom:10,borderBottom:"1px solid #140f22"}}>
               <span className="dot" style={{background:col.dot}}></span>
-              <span style={{fontSize:12,fontWeight:600,color:"#a09cb8",letterSpacing:".05em",textTransform:"uppercase"}}>{col.label}</span>
-              <span style={{marginLeft:"auto",background:"#1e1e2a",borderRadius:4,padding:"1px 7px",fontSize:11,color:"#555570"}}>{col.items.length}</span>
+              <span style={{fontSize:12,fontWeight:600,color:"#8a80a8",letterSpacing:".05em",textTransform:"uppercase"}}>{col.label}</span>
+              <span style={{marginLeft:"auto",background:"#140f22",borderRadius:4,padding:"1px 7px",fontSize:11,color:"#5a4870"}}>{col.items.length}</span>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {col.items.map(task=>(
@@ -360,13 +402,13 @@ function BoardCard({ task, requests, linkMode, onCardClick, setDragging }) {
   return(
     <div className={`card${isSrc?" lsrc":""}${isTgt?" ltgt":""}`} draggable onClick={()=>onCardClick(task.id,"task")} onDragStart={()=>setDragging(task.id)}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:8}}>
-        <span style={{fontSize:13,fontWeight:500,lineHeight:1.4,color:task.status==="Done"?"#484860":"#e8e6f0",textDecoration:task.status==="Done"?"line-through":"none",flex:1}}>{task.title}</span>
+        <span style={{fontSize:13,fontWeight:500,lineHeight:1.4,color:task.status==="Done"?"#3a3055":"#f0e8ff",textDecoration:task.status==="Done"?"line-through":"none",flex:1}}>{task.title}</span>
         <span className="badge" style={{background:pm.bg,color:pm.color,flexShrink:0}}>{task.priority}</span>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:blockedReqs.length?6:0}}>
-        <span style={{fontSize:11,color:"#555570",background:"#1a1a24",padding:"2px 8px",borderRadius:4}}>{task.assignee}</span>
+        <span style={{fontSize:11,color:"#5a4870",background:"#100820",padding:"2px 8px",borderRadius:4}}>{task.assignee}</span>
         {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,border:`1px solid ${lm.color}44`}}>{task.label}</span>}
-        {(task.deps||[]).length>0&&<span style={{fontSize:11,color:"#7c3aed"}}>⬡ {task.deps.length}</span>}
+        {(task.deps||[]).length>0&&<span style={{fontSize:11,color:"#b44fff"}}>⬡ {task.deps.length}</span>}
         {blockedReqs.length>0&&<span style={{fontSize:11,color:"#f97316"}}>⇄ {blockedReqs.length}</span>}
       </div>
       {blockedReqs.map(r=>(
@@ -374,7 +416,7 @@ function BoardCard({ task, requests, linkMode, onCardClick, setDragging }) {
           <span>⇄</span><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.title}</span>
         </div>
       ))}
-      {task.notes&&<div style={{marginTop:7,fontSize:11,color:"#484860",lineHeight:1.4,borderTop:"1px solid #1e1e2a",paddingTop:7}}>{task.notes}</div>}
+      {task.notes&&<div style={{marginTop:7,fontSize:11,color:"#3a3055",lineHeight:1.4,borderTop:"1px solid #140f22",paddingTop:7}}>{task.notes}</div>}
     </div>
   );
 }
@@ -458,7 +500,7 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
           </div>
         </div>
       </div>
-      {requests.length>0&&<div style={{fontSize:11,color:"#555570",marginBottom:10}}>⇄ Requests shown below tasks — orange lines connect them to blocked tasks.</div>}
+      {requests.length>0&&<div style={{fontSize:11,color:"#5a4870",marginBottom:10}}>⇄ Requests shown below tasks — orange lines connect them to blocked tasks.</div>}
 
       <div style={{overflow:"auto",position:"relative",minHeight:420}}>
         <svg width={maxX} height={maxY} style={{display:"block",position:"absolute",top:0,left:0,pointerEvents:"none"}}>
@@ -513,17 +555,17 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
             const sm=STATUS_META[task.status];
             const lm=task.label?LABEL_META[task.label]:null;
             return(
-              <div key={task.id} style={{position:"absolute",left:pos.x,top:pos.y,width:CW,background:"#16161f",border:`1px solid ${isSrc?"#7c3aed":isTgt?"#10b981":"#23232e"}`,borderRadius:9,padding:"10px 12px",cursor:"pointer",transition:"border-color .15s,box-shadow .15s",boxShadow:isSrc?"0 0 0 2px rgba(124,58,237,.3)":isTgt?"0 0 0 2px rgba(16,185,129,.2)":""}}
+              <div key={task.id} style={{position:"absolute",left:pos.x,top:pos.y,width:CW,background:"#0c0818",border:`1px solid ${isSrc?"#b44fff":isTgt?"#10b981":"#23232e"}`,borderRadius:9,padding:"10px 12px",cursor:"pointer",transition:"border-color .15s,box-shadow .15s",boxShadow:isSrc?"0 0 0 2px rgba(180,79,255,.3)":isTgt?"0 0 0 2px rgba(16,185,129,.2)":""}}
                 onClick={()=>onCardClick(task.id,"task")}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:6,marginBottom:6}}>
-                  <span style={{fontSize:12,fontWeight:500,lineHeight:1.35,color:task.status==="Done"?"#484860":"#e0ddf0",flex:1}}>{task.title}</span>
+                  <span style={{fontSize:12,fontWeight:500,lineHeight:1.35,color:task.status==="Done"?"#3a3055":"#e0ddf0",flex:1}}>{task.title}</span>
                   <span className="badge" style={{background:pm.bg,color:pm.color,fontSize:10}}>{task.priority}</span>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                   <span className="dot" style={{background:sm.dot,width:6,height:6}}></span>
                   <span style={{fontSize:11,color:sm.color}}>{task.status}</span>
                   {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,fontSize:10}}>{task.label}</span>}
-                  <span style={{marginLeft:"auto",fontSize:11,color:"#484860"}}>{task.assignee}</span>
+                  <span style={{marginLeft:"auto",fontSize:11,color:"#3a3055"}}>{task.assignee}</span>
                 </div>
               </div>
             );
@@ -543,7 +585,7 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
               }
             };
             return(
-              <div key={req.id} style={{position:"absolute",left:pos.x,top:pos.y,width:RW,background:"#14120a",border:`1px solid ${isSrc?"#7c3aed":isTgt?"#10b981":"#2a1e0a"}`,borderRadius:8,padding:"8px 10px",cursor:linkMode&&!isTgt&&!isSrc?"default":"pointer",transition:"border-color .15s,box-shadow .15s",boxShadow:isTgt?"0 0 0 2px rgba(16,185,129,.2)":isSrc?"0 0 0 2px rgba(124,58,237,.3)":""}}>
+              <div key={req.id} style={{position:"absolute",left:pos.x,top:pos.y,width:RW,background:"#14120a",border:`1px solid ${isSrc?"#b44fff":isTgt?"#10b981":"#2a1e0a"}`,borderRadius:8,padding:"8px 10px",cursor:linkMode&&!isTgt&&!isSrc?"default":"pointer",transition:"border-color .15s,box-shadow .15s",boxShadow:isTgt?"0 0 0 2px rgba(16,185,129,.2)":isSrc?"0 0 0 2px rgba(180,79,255,.3)":""}}>
                 <div style={{fontSize:10,color:"#6b5a30",textTransform:"uppercase",letterSpacing:".06em",marginBottom:3}}>⇄ Request</div>
                 <div style={{fontSize:11,fontWeight:500,color:"#e0c97a",lineHeight:1.3,marginBottom:5}}>{req.title}</div>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
@@ -579,11 +621,11 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
     <div>
       <div style={{display:"flex",gap:8,marginBottom:20,flexWrap:"wrap"}}>
         {[["All",requests.length],...EXT_STATUSES.map(s=>[s,counts[s]])].map(([s,n])=>{
-          const m=s==="All"?{color:"#a09cb8",bg:"#1a1a24"}:EXT_STATUS_META[s];
+          const m=s==="All"?{color:"#8a80a8",bg:"#100820"}:EXT_STATUS_META[s];
           const act=filter===s;
           return(
-            <button key={s} onClick={()=>setFilter(s)} style={{padding:"5px 14px",borderRadius:20,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:act?m.bg:"transparent",borderColor:act?m.color:"#2a2a38",color:act?m.color:"#555570",display:"flex",alignItems:"center",gap:6}}>
-              {s}<span style={{background:"#1e1e2a",padding:"0 5px",borderRadius:3,fontSize:11}}>{n}</span>
+            <button key={s} onClick={()=>setFilter(s)} style={{padding:"5px 14px",borderRadius:20,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:act?m.bg:"transparent",borderColor:act?m.color:"#1e1430",color:act?m.color:"#5a4870",display:"flex",alignItems:"center",gap:6}}>
+              {s}<span style={{background:"#140f22",padding:"0 5px",borderRadius:3,fontSize:11}}>{n}</span>
             </button>
           );
         })}
@@ -594,26 +636,26 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
           const m=EXT_STATUS_META[req.status];
           const linkedTasks=tasks.filter(t=>(t.reqDeps||[]).includes(req.id));
           return(
-            <div key={req.id} className="card" onClick={()=>onEdit(req)} style={{background:"#12121a",border:"1px solid #1e1e2a",borderRadius:10,padding:"14px 18px"}}>
+            <div key={req.id} className="card" onClick={()=>onEdit(req)} style={{background:"#080610",border:"1px solid #140f22",borderRadius:10,padding:"14px 18px"}}>
               <div style={{display:"flex",alignItems:"flex-start",gap:16}}>
                 <div style={{flex:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:linkedTasks.length||req.notes?6:0}}>
                     <span style={{fontWeight:500,fontSize:14}}>{req.title}</span>
-                    <span style={{fontSize:11,color:"#555570",background:"#1a1a24",padding:"2px 8px",borderRadius:4}}>{req.team}</span>
+                    <span style={{fontSize:11,color:"#5a4870",background:"#100820",padding:"2px 8px",borderRadius:4}}>{req.team}</span>
                   </div>
-                  {req.notes&&<div style={{fontSize:12,color:"#484860",marginBottom:linkedTasks.length?6:0}}>{req.notes}</div>}
+                  {req.notes&&<div style={{fontSize:12,color:"#3a3055",marginBottom:linkedTasks.length?6:0}}>{req.notes}</div>}
                   {linkedTasks.length>0&&(
                     <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
-                      <span style={{fontSize:11,color:"#555570"}}>Blocking:</span>
+                      <span style={{fontSize:11,color:"#5a4870"}}>Blocking:</span>
                       {linkedTasks.map(t=>(
-                        <span key={t.id} style={{fontSize:11,color:"#a78bfa",background:"#1a1040",padding:"2px 8px",borderRadius:4,border:"1px solid #2a1a60"}}>⬡ {t.title}</span>
+                        <span key={t.id} style={{fontSize:11,color:"#cc99ff",background:"#1a1040",padding:"2px 8px",borderRadius:4,border:"1px solid #2a1a60"}}>⬡ {t.title}</span>
                       ))}
                     </div>
                   )}
                 </div>
                 <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,flexShrink:0}}>
                   <span style={{padding:"4px 12px",borderRadius:20,fontSize:12,fontWeight:600,background:m.bg,color:m.color,border:`1px solid ${m.color}55`}}>{req.status}</span>
-                  <span style={{fontSize:12,color:"#555570"}}>{req.assignee}</span>
+                  <span style={{fontSize:12,color:"#5a4870"}}>{req.assignee}</span>
                 </div>
               </div>
             </div>
@@ -666,7 +708,7 @@ function LeaderView({ tasks, requests }) {
 
   return(
     <div>
-      <div style={{display:"flex",gap:4,background:"#0c0c12",border:"1px solid #1e1e2a",borderRadius:8,padding:3,width:"fit-content",marginBottom:20}}>
+      <div style={{display:"flex",gap:4,background:"#040210",border:"1px solid #140f22",borderRadius:8,padding:3,width:"fit-content",marginBottom:20}}>
         {[["overview","Overview"],["timeline","Timeline"]].map(([t,l])=>(
           <button key={t} className={`vbtn${tab===t?" act":""}`} onClick={()=>setTab(t)}>{l}</button>
         ))}
@@ -677,25 +719,25 @@ function LeaderView({ tasks, requests }) {
           {/* ── Health metrics ── */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:28}}>
             {[
-              {l:"Overall",   v:`${overallPct}%`, c:overallPct===100?"#10b981":"#a78bfa"},
+              {l:"Overall",   v:`${overallPct}%`, c:overallPct===100?"#10b981":"#cc99ff"},
               {l:"Done",      v:`${done}/${total}`,c:"#10b981"},
-              {l:"In flight", v:inProg,            c:"#7c3aed"},
+              {l:"In flight", v:inProg,            c:"#b44fff"},
               {l:"Blocked",   v:blocked,           c:blocked>0?"#ef4444":"#10b981"},
               {l:"Open reqs", v:pendingReqs,       c:pendingReqs>0?"#f97316":"#10b981"},
             ].map(m=>(
-              <div key={m.l} style={{background:"#12121a",border:"1px solid #1e1e2a",borderRadius:12,padding:"16px 18px"}}>
-                <div style={{fontSize:11,color:"#555570",marginBottom:8,textTransform:"uppercase",letterSpacing:".06em"}}>{m.l}</div>
+              <div key={m.l} style={{background:"#080610",border:"1px solid #140f22",borderRadius:12,padding:"16px 18px"}}>
+                <div style={{fontSize:11,color:"#5a4870",marginBottom:8,textTransform:"uppercase",letterSpacing:".06em"}}>{m.l}</div>
                 <div style={{fontSize:28,fontWeight:600,color:m.c,letterSpacing:"-0.03em"}}>{m.v}</div>
               </div>
             ))}
           </div>
 
           {/* ── Overall flow bar ── */}
-          <div style={{background:"#12121a",border:"1px solid #1e1e2a",borderRadius:10,padding:"14px 18px",marginBottom:24}}>
+          <div style={{background:"#080610",border:"1px solid #140f22",borderRadius:10,padding:"14px 18px",marginBottom:24}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
               <span style={{fontWeight:500,fontSize:13}}>Overall flow</span>
               <div style={{display:"flex",gap:14}}>
-                {[["Todo",todo,"#6b7280"],["In Progress",inProg,"#7c3aed"],["Blocked",blocked,"#ef4444"],["Done",done,"#10b981"]].map(([s,n,c])=>(
+                {[["Todo",todo,"#6b7280"],["In Progress",inProg,"#b44fff"],["Blocked",blocked,"#ef4444"],["Done",done,"#10b981"]].map(([s,n,c])=>(
                   <div key={s} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:c}}>
                     <span className="dot" style={{background:c,width:6,height:6}}></span>{n} {s}
                   </div>
@@ -703,10 +745,10 @@ function LeaderView({ tasks, requests }) {
               </div>
             </div>
             {/* Stacked bar */}
-            <div style={{height:8,borderRadius:4,overflow:"hidden",display:"flex",background:"#1e1e2a"}}>
+            <div style={{height:8,borderRadius:4,overflow:"hidden",display:"flex",background:"#140f22"}}>
               {total>0&&[
                 {n:done,   c:"#10b981"},
-                {n:inProg, c:"#7c3aed"},
+                {n:inProg, c:"#b44fff"},
                 {n:blocked,c:"#ef4444"},
                 {n:todo,   c:"#2a2a3a"},
               ].map((seg,i)=>seg.n>0&&(
@@ -718,18 +760,18 @@ function LeaderView({ tasks, requests }) {
           {/* ── Progress by feature area ── */}
           {labelRows.length>0&&(
             <div style={{marginBottom:24}}>
-              <div style={{fontSize:12,color:"#555570",textTransform:"uppercase",letterSpacing:".07em",marginBottom:14}}>Progress by area</div>
+              <div style={{fontSize:12,color:"#5a4870",textTransform:"uppercase",letterSpacing:".07em",marginBottom:14}}>Progress by area</div>
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {labelRows.map(({lbl,total:lt,done:ld,blocked:lb,inProg:lip,pct})=>{
                   const lm=LABEL_META[lbl];
                   return(
-                    <div key={lbl} style={{background:"#12121a",border:"1px solid #1e1e2a",borderRadius:10,padding:"12px 16px"}}>
+                    <div key={lbl} style={{background:"#080610",border:"1px solid #140f22",borderRadius:10,padding:"12px 16px"}}>
                       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
                         <span className="chip" style={{background:lm.bg,color:lm.color,border:`1px solid ${lm.color}44`}}>{lbl}</span>
                         <div style={{flex:1}}></div>
                         {lb>0&&<span style={{fontSize:11,color:"#ef4444"}}>🚫 {lb}</span>}
-                        {lip>0&&<span style={{fontSize:11,color:"#7c3aed"}}>▶ {lip}</span>}
-                        <span style={{fontSize:12,color:"#555570"}}>{ld}/{lt}</span>
+                        {lip>0&&<span style={{fontSize:11,color:"#b44fff"}}>▶ {lip}</span>}
+                        <span style={{fontSize:12,color:"#5a4870"}}>{ld}/{lt}</span>
                         <span style={{fontSize:12,fontWeight:600,color:pct===100?"#10b981":lm.color,minWidth:34,textAlign:"right"}}>{pct}%</span>
                       </div>
                       <div className="pb">
@@ -760,7 +802,7 @@ function LeaderView({ tasks, requests }) {
                           </div>
                         )}
                       </div>
-                      <span style={{fontSize:11,color:"#555570",flexShrink:0}}>{t.assignee}</span>
+                      <span style={{fontSize:11,color:"#5a4870",flexShrink:0}}>{t.assignee}</span>
                     </div>
                   );
                 })}
@@ -770,28 +812,28 @@ function LeaderView({ tasks, requests }) {
 
           {/* ── Team workload ── */}
           <div>
-            <div style={{fontSize:12,color:"#555570",textTransform:"uppercase",letterSpacing:".07em",marginBottom:14}}>Team workload</div>
+            <div style={{fontSize:12,color:"#5a4870",textTransform:"uppercase",letterSpacing:".07em",marginBottom:14}}>Team workload</div>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
               {teamRows.map(({name,total:tot,active,blocked:blk,done:dn,todo:td})=>{
                 const pct=tot?Math.round(dn/tot*100):0;
                 return(
-                  <div key={name} style={{background:"#12121a",border:`1px solid ${blk>0?"#3a1515":"#1e1e2a"}`,borderRadius:9,padding:"10px 16px",display:"flex",alignItems:"center",gap:14}}>
-                    <div style={{width:28,height:28,borderRadius:7,background:"linear-gradient(135deg,#2d1e5a,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:600,color:"#c4b5fd",flexShrink:0}}>{name[0]}</div>
+                  <div key={name} style={{background:"#080610",border:`1px solid ${blk>0?"#3a1515":"#140f22"}`,borderRadius:9,padding:"10px 16px",display:"flex",alignItems:"center",gap:14}}>
+                    <div style={{width:28,height:28,borderRadius:7,background:"linear-gradient(135deg,#2d1e5a,#b44fff)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:600,color:"#cc99ff",flexShrink:0}}>{name[0]}</div>
                     <span style={{fontWeight:500,fontSize:13,width:60,flexShrink:0}}>{name}</span>
                     {/* Stacked workload bar */}
-                    <div style={{flex:1,height:6,borderRadius:3,overflow:"hidden",display:"flex",background:"#1e1e2a",minWidth:60}}>
-                      {tot>0&&[{n:dn,c:"#10b981"},{n:active,c:"#7c3aed"},{n:blk,c:"#ef4444"},{n:td,c:"#2a2a3a"}].map((s,i)=>s.n>0&&(
+                    <div style={{flex:1,height:6,borderRadius:3,overflow:"hidden",display:"flex",background:"#140f22",minWidth:60}}>
+                      {tot>0&&[{n:dn,c:"#10b981"},{n:active,c:"#b44fff"},{n:blk,c:"#ef4444"},{n:td,c:"#2a2a3a"}].map((s,i)=>s.n>0&&(
                         <div key={i} style={{width:`${s.n/tot*100}%`,background:s.c}}></div>
                       ))}
                     </div>
                     <div style={{display:"flex",gap:10,flexShrink:0}}>
-                      {active>0&&<span style={{fontSize:11,color:"#a78bfa"}}>▶ {active}</span>}
+                      {active>0&&<span style={{fontSize:11,color:"#cc99ff"}}>▶ {active}</span>}
                       {blk>0&&<span style={{fontSize:11,color:"#ef4444"}}>🚫 {blk}</span>}
-                      {td>0&&<span style={{fontSize:11,color:"#555570"}}>⬜ {td}</span>}
+                      {td>0&&<span style={{fontSize:11,color:"#5a4870"}}>⬜ {td}</span>}
                       {dn>0&&<span style={{fontSize:11,color:"#10b981"}}>✓ {dn}</span>}
                       {tot===0&&<span style={{fontSize:11,color:"#3a3a50",fontStyle:"italic"}}>unassigned</span>}
                     </div>
-                    <span style={{fontSize:11,color:pct===100?"#10b981":"#555570",width:32,textAlign:"right",flexShrink:0}}>{tot>0?`${pct}%`:""}</span>
+                    <span style={{fontSize:11,color:pct===100?"#10b981":"#5a4870",width:32,textAlign:"right",flexShrink:0}}>{tot>0?`${pct}%`:""}</span>
                   </div>
                 );
               })}
@@ -807,7 +849,7 @@ function LeaderView({ tasks, requests }) {
 
 function TimelineView({ tasks, requests }) {
   const withDates=tasks.filter(t=>t.startDate&&t.endDate).sort((a,b)=>a.startDate.localeCompare(b.startDate));
-  if(!withDates.length) return <div style={{color:"#555570",fontSize:13,padding:"40px 0",textAlign:"center"}}>No tasks have start/end dates. Edit tasks to add them.</div>;
+  if(!withDates.length) return <div style={{color:"#5a4870",fontSize:13,padding:"40px 0",textAlign:"center"}}>No tasks have start/end dates. Edit tasks to add them.</div>;
 
   const allD=withDates.flatMap(t=>[t.startDate,t.endDate]);
   const minD=new Date(allD.reduce((a,b)=>a<b?a:b));
@@ -854,12 +896,12 @@ function TimelineView({ tasks, requests }) {
     const left=pct(task.startDate),right=pct(task.endDate),width=Math.max(right-left,.5);
     return(
       <div key={task.id} style={{display:"flex",alignItems:"center",marginBottom:CHART_GAP,height:ROW_H}}>
-        <div style={{width:LABEL_W-2,flexShrink:0,fontSize:12,color:"#a09cb8",textAlign:"right",paddingRight:10,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"flex",alignItems:"center",justifyContent:"flex-end",gap:5}}>
+        <div style={{width:LABEL_W-2,flexShrink:0,fontSize:12,color:"#8a80a8",textAlign:"right",paddingRight:10,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"flex",alignItems:"center",justifyContent:"flex-end",gap:5}}>
           {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,fontSize:9}}>{task.label}</span>}
           <span title={task.title}>{task.title}</span>
         </div>
         <div style={{flex:1,position:"relative",height:ROW_H}}>
-          <div style={{position:"absolute",top:"50%",left:0,right:0,height:1,background:"#1e1e2a",transform:"translateY(-50%)"}}></div>
+          <div style={{position:"absolute",top:"50%",left:0,right:0,height:1,background:"#140f22",transform:"translateY(-50%)"}}></div>
           <div title={`${task.startDate} → ${task.endDate} · ${task.assignee}`} style={{position:"absolute",top:(ROW_H-16)/2,left:`${left}%`,width:`${width}%`,height:16,background:sm.line,borderRadius:4,opacity:.85,display:"flex",alignItems:"center",paddingLeft:5,overflow:"hidden",minWidth:4}}>
             <span style={{fontSize:10,color:"#fff",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{task.assignee}</span>
           </div>
@@ -892,7 +934,7 @@ function TimelineView({ tasks, requests }) {
             <svg style={{position:"absolute",top:0,left:LABEL_W,right:0,width:`calc(100% - ${LABEL_W}px)`,height:chartH,pointerEvents:"none",overflow:"visible"}}>
               <defs>
                 <marker id="tl-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                  <path d="M2 1L8 5L2 9" fill="none" stroke="#555570" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 1L8 5L2 9" fill="none" stroke="#5a4870" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </marker>
               </defs>
               {depArrows.map((a,i)=>{
@@ -919,7 +961,7 @@ function TimelineView({ tasks, requests }) {
 
         <div style={{display:"flex",gap:14,paddingLeft:LABEL_W,marginTop:10,flexWrap:"wrap"}}>
           {Object.entries(STATUS_META).map(([s,m])=>(
-            <div key={s} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#555570"}}>
+            <div key={s} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#5a4870"}}>
               <span style={{display:"block",width:12,height:10,background:m.line,borderRadius:2,opacity:.85}}></span>{s}
             </div>
           ))}
@@ -980,10 +1022,10 @@ function TaskModal({ task, tasks, requests, onSave, onDelete, onLink, unlinkDep,
           <F label="Notes"><textarea className="inp" placeholder="Optional notes…" value={form.notes} onChange={e=>set("notes",e.target.value)} /></F>
           {depNames.length>0&&(
             <F label="Task dependencies">
-              <div style={{background:"#1a1a24",borderRadius:7,padding:"10px 12px",display:"flex",flexDirection:"column",gap:6}}>
+              <div style={{background:"#100820",borderRadius:7,padding:"10px 12px",display:"flex",flexDirection:"column",gap:6}}>
                 {depNames.map(({id,title})=>(
                   <div key={id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-                    <span style={{fontSize:12,color:"#a78bfa"}}>⬡ {title}</span>
+                    <span style={{fontSize:12,color:"#cc99ff"}}>⬡ {title}</span>
                     {isEdit&&<button className="btn dr sm" onClick={()=>{unlinkDep&&unlinkDep(task.id,id);set("deps",(form.deps||[]).filter(d=>d!==id));}}>unlink</button>}
                   </div>
                 ))}
@@ -1005,7 +1047,7 @@ function TaskModal({ task, tasks, requests, onSave, onDelete, onLink, unlinkDep,
         </div>
         <div style={{display:"flex",gap:8,marginTop:20,flexWrap:"wrap"}}>
           {isEdit&&<button className="btn dr" onClick={onDelete}>Delete</button>}
-          {isEdit&&onLink&&<button className="btn g" onClick={onLink} style={{color:"#a78bfa",borderColor:"#3a2a6a"}}>🔗 Link dep</button>}
+          {isEdit&&onLink&&<button className="btn g" onClick={onLink} style={{color:"#cc99ff",borderColor:"#3a2a6a"}}>🔗 Link dep</button>}
           <div style={{marginLeft:"auto",display:"flex",gap:8}}>
             <button className="btn g" onClick={onClose}>Cancel</button>
             <button className="btn p" onClick={()=>form.title&&onSave(form)}>{isEdit?"Save":"Create task"}</button>
@@ -1049,9 +1091,9 @@ function ReqModal({ req, tasks, onToggleTask, onSave, onDelete, onClose }) {
           {/* Task linker — only meaningful once the request exists */}
           <F label={`Tasks blocked by this request${blockedByThis.length?` (${blockedByThis.length})`:""}`}>
             {!isEdit
-              ? <div style={{fontSize:12,color:"#444458",padding:"8px 12px",background:"#1a1a24",borderRadius:7}}>Save the request first, then link tasks to it.</div>
-              : <div style={{background:"#1a1a24",borderRadius:7,overflow:"hidden",border:"1px solid #2a2a38"}}>
-                  <div style={{padding:"8px 10px",borderBottom:"1px solid #2a2a38"}}>
+              ? <div style={{fontSize:12,color:"#444458",padding:"8px 12px",background:"#100820",borderRadius:7}}>Save the request first, then link tasks to it.</div>
+              : <div style={{background:"#100820",borderRadius:7,overflow:"hidden",border:"1px solid #1e1430"}}>
+                  <div style={{padding:"8px 10px",borderBottom:"1px solid #1e1430"}}>
                     <input className="inp" style={{background:"transparent",border:"none",padding:"0",fontSize:12}} placeholder="Filter tasks…" value={taskSearch} onChange={e=>setTaskSearch(e.target.value)} />
                   </div>
                   <div style={{height:180,overflowY:"auto",padding:"4px 0"}}>
@@ -1063,24 +1105,24 @@ function ReqModal({ req, tasks, onToggleTask, onSave, onDelete, onClose }) {
                       return(
                         <div key={t.id} onClick={()=>onToggleTask(t.id,req.id,!isLinked)}
                           style={{display:"flex",alignItems:"center",gap:10,padding:"7px 12px",cursor:"pointer",transition:"background .1s",background:isLinked?"#1a1040":"transparent"}}
-                          onMouseEnter={e=>e.currentTarget.style.background=isLinked?"#1e1448":"#1e1e2a"}
+                          onMouseEnter={e=>e.currentTarget.style.background=isLinked?"#1e1448":"#140f22"}
                           onMouseLeave={e=>e.currentTarget.style.background=isLinked?"#1a1040":"transparent"}>
                           {/* Checkbox */}
-                          <div style={{width:16,height:16,borderRadius:4,border:`1.5px solid ${isLinked?"#7c3aed":"#3a3a50"}`,background:isLinked?"#7c3aed":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .15s"}}>
+                          <div style={{width:16,height:16,borderRadius:4,border:`1.5px solid ${isLinked?"#b44fff":"#3a3a50"}`,background:isLinked?"#b44fff":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .15s"}}>
                             {isLinked&&<span style={{fontSize:10,color:"#fff",lineHeight:1}}>✓</span>}
                           </div>
                           <span className="dot" style={{background:sm.dot,width:6,height:6,flexShrink:0}}></span>
-                          <span style={{fontSize:12,flex:1,color:isLinked?"#c4b5fd":"#a09cb8"}}>{t.title}</span>
+                          <span style={{fontSize:12,flex:1,color:isLinked?"#cc99ff":"#8a80a8"}}>{t.title}</span>
                           <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
                             {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,fontSize:10}}>{t.label}</span>}
-                            <span style={{fontSize:11,color:"#484860"}}>{t.assignee}</span>
+                            <span style={{fontSize:11,color:"#3a3055"}}>{t.assignee}</span>
                           </div>
                         </div>
                       );
                     })}
                   </div>
                   {blockedByThis.length>0&&(
-                    <div style={{padding:"6px 12px",borderTop:"1px solid #2a2a38",fontSize:11,color:"#555570"}}>
+                    <div style={{padding:"6px 12px",borderTop:"1px solid #1e1430",fontSize:11,color:"#5a4870"}}>
                       {blockedByThis.length} task{blockedByThis.length!==1?"s":""} waiting on this request
                     </div>
                   )}
@@ -1107,7 +1149,7 @@ function ExportModal({ md, onClose }) {
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="mbox" style={{width:640}}>
         <div style={{fontWeight:600,fontSize:16,marginBottom:16}}>Export to Markdown</div>
-        <textarea value={md} readOnly style={{background:"#0f0f13",border:"1px solid #2a2a38",borderRadius:7,color:"#7a9e7a",fontFamily:"'DM Mono',monospace",fontSize:12,padding:14,width:"100%",height:300,resize:"none",outline:"none"}} />
+        <textarea value={md} readOnly style={{background:"#06040f",border:"1px solid #1e1430",borderRadius:7,color:"#7a9e7a",fontFamily:"'DM Mono',monospace",fontSize:12,padding:14,width:"100%",height:300,resize:"none",outline:"none"}} />
         <div style={{display:"flex",gap:8,marginTop:16,justifyContent:"flex-end"}}>
           <button className="btn g" onClick={onClose}>Close</button>
           <button className="btn p" onClick={copy}>{copied?"✓ Copied!":"Copy to clipboard"}</button>

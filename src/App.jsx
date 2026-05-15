@@ -684,14 +684,16 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
           const m=EXT_STATUS_META[req.status];
           const linkedTasks=tasks.filter(t=>(t.reqDeps||[]).includes(req.id));
           return(
-            <div key={req.id} className="card" onClick={()=>onEdit(req)} style={{background:"#080610",border:"1px solid #140f22",borderRadius:10,padding:"14px 18px"}}>
-              <div style={{display:"flex",alignItems:"flex-start",gap:16}}>
+            <div key={req.id} className="card" onClick={()=>onEdit(req)} style={{background:"#0c0818",border:`1px solid #1e1430`,borderRadius:10,padding:"14px 18px",position:"relative",overflow:"hidden"}}>
+              {/* Status left glow bar */}
+              <div style={{position:"absolute",top:0,left:0,bottom:0,width:2,background:m.color,boxShadow:`0 0 8px ${m.color}`,borderRadius:"10px 0 0 10px"}} />
+              <div style={{paddingLeft:8,display:"flex",alignItems:"flex-start",gap:16}}>
                 <div style={{flex:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:linkedTasks.length||req.notes?6:0}}>
-                    <span style={{fontWeight:500,fontSize:14}}>{req.title}</span>
-                    <span style={{fontSize:11,color:"#5a4870",background:"#100820",padding:"2px 8px",borderRadius:4}}>{req.team}</span>
+                    <span style={{fontWeight:600,fontSize:14,color:"#f0e8ff"}}>{req.title}</span>
+                    <span style={{fontSize:11,color:"#8a80a8",background:"#100820",padding:"2px 8px",borderRadius:4,border:"1px solid #1e1430"}}>{req.team}</span>
                   </div>
-                  {req.notes&&<div style={{fontSize:12,color:"#3a3055",marginBottom:linkedTasks.length?6:0}}>{req.notes}</div>}
+                  {req.notes&&<div style={{fontSize:12,color:"#8a80a8",marginBottom:linkedTasks.length?6:0}}>{req.notes}</div>}
                   {linkedTasks.length>0&&(
                     <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
                       <span style={{fontSize:11,color:"#5a4870"}}>Blocking:</span>
@@ -703,7 +705,7 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
                 </div>
                 <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,flexShrink:0}}>
                   <span style={{padding:"4px 12px",borderRadius:20,fontSize:12,fontWeight:600,background:m.bg,color:m.color,border:`1px solid ${m.color}55`}}>{req.status}</span>
-                  <span style={{fontSize:12,color:"#5a4870"}}>{req.assignee}</span>
+                  <span style={{fontSize:12,color:"#8a80a8"}}>{req.assignee}</span>
                 </div>
               </div>
             </div>

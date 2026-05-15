@@ -266,7 +266,7 @@ export default function App() {
       <div style={{borderBottom:"1px solid #1e1e2a",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,background:"#0f0f13",zIndex:50}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
           <div style={{width:28,height:28,background:"linear-gradient(135deg,#7c3aed,#a78bfa)",borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>⬡</div>
-          <span style={{fontWeight:600,fontSize:15,letterSpacing:"-0.02em"}}>The Metrix</span>
+          <span style={{fontWeight:600,fontSize:15,letterSpacing:"-0.02em"}}>Slipstream</span>
           <span style={{color:"#2a2a38"}}>—</span>
           <span style={{color:"#444458",fontSize:12}}>Task Tracker</span>
         </div>

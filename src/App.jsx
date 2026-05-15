@@ -69,11 +69,11 @@ const STATUS_META = {
 };
 
 const EXT_STATUS_META = {
-  "Pending":   { color:"#9ca3af", bg:"#140f22" },
-  "In Review": { color:"#cc99ff", bg:"#1a1030" },
-  "Approved":  { color:"#6ee7b7", bg:"#0a2018" },
-  "Rejected":  { color:"#fca5a5", bg:"#2a1010" },
-  "On Hold":   { color:"#f97316", bg:"#1e1208" },
+  "Pending":   { color:"#9ca3af", bg:"#9ca3af18" },
+  "In Review": { color:"#cc99ff", bg:"#cc99ff18" },
+  "Approved":  { color:"#6ee7b7", bg:"#6ee7b718" },
+  "Rejected":  { color:"#fca5a5", bg:"#fca5a518" },
+  "On Hold":   { color:"#f97316", bg:"#f9731618" },
 };
 
 function uid() { return Math.random().toString(36).slice(2,9); }
@@ -147,7 +147,7 @@ textarea.inp{resize:vertical;min-height:64px;}
 .dc{border-color:#b44fff!important;background:#0e0820!important;}
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .badge{display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:.06em;font-family:'Rajdhani',sans-serif;flex-shrink:0;min-width:26px;}
-.chip{display:inline-flex;align-items:center;padding:3px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.06em;}
+.chip{display:inline-flex;align-items:center;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.06em;font-family:'Rajdhani',sans-serif;}
 `;
 
 /* ═══════════════════════════════════════════════════════════════
@@ -637,7 +637,7 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
                 <div style={{fontSize:10,color:"#6b5a30",textTransform:"uppercase",letterSpacing:".06em",marginBottom:3}}>⇄ Request</div>
                 <div style={{fontSize:11,fontWeight:500,color:"#e0c97a",lineHeight:1.3,marginBottom:5}}>{req.title}</div>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
-                  <span style={{fontSize:10,padding:"1px 6px",borderRadius:10,background:sm.bg,color:sm.color}}>{req.status}</span>
+                  <span style={{fontSize:10,fontWeight:700,fontFamily:"'Rajdhani',sans-serif",letterSpacing:"0.06em",padding:"1px 7px",borderRadius:3,background:sm.bg,color:sm.color,border:`1px solid ${sm.color}55`}}>{req.status}</span>
                   {!linkMode&&(
                     <button
                       className="btn g sm"
@@ -672,7 +672,7 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
           const m=s==="All"?{color:"#8a80a8",bg:"#100820"}:EXT_STATUS_META[s];
           const act=filter===s;
           return(
-            <button key={s} onClick={()=>setFilter(s)} style={{padding:"5px 14px",borderRadius:20,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:act?m.bg:"transparent",borderColor:act?m.color:"#1e1430",color:act?m.color:"#5a4870",display:"flex",alignItems:"center",gap:6}}>
+            <button key={s} onClick={()=>setFilter(s)} style={{padding:"4px 12px",borderRadius:4,border:"1px solid",fontSize:11,cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",fontWeight:600,letterSpacing:"0.06em",transition:"all .15s",background:act?m.bg:"transparent",borderColor:act?m.color:"#1e1430",color:act?m.color:"#5a4870",display:"flex",alignItems:"center",gap:6}}>
               {s}<span style={{background:"#140f22",padding:"0 5px",borderRadius:3,fontSize:11}}>{n}</span>
             </button>
           );
@@ -704,7 +704,7 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
                   )}
                 </div>
                 <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,flexShrink:0}}>
-                  <span style={{padding:"4px 12px",borderRadius:20,fontSize:12,fontWeight:600,background:m.bg,color:m.color,border:`1px solid ${m.color}55`}}>{req.status}</span>
+                  <span style={{padding:"1px 7px",borderRadius:3,fontSize:10,fontWeight:700,fontFamily:"'Rajdhani',sans-serif",letterSpacing:"0.06em",background:m.bg,color:m.color,border:`1px solid ${m.color}55`}}>{req.status}</span>
                   <span style={{fontSize:12,color:"#8a80a8"}}>{req.assignee}</span>
                 </div>
               </div>

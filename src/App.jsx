@@ -407,8 +407,23 @@ function BoardCard({ task, requests, linkMode, onCardClick, setDragging }) {
       onClick={()=>onCardClick(task.id,"task")}
       onDragStart={e=>{
         e.dataTransfer.effectAllowed="move";
-        const el=e.currentTarget;
-        setTimeout(()=>{ el.style.opacity="0.4"; },0);
+        const src=e.currentTarget;
+        // Clone with solid bg so ghost renders correctly on dark theme
+        const ghost=src.cloneNode(true);
+        const w=src.offsetWidth;
+        Object.assign(ghost.style,{
+          position:"fixed",top:"-9999px",left:"-9999px",
+          width:w+"px",background:"#0c0818",
+          border:"1px solid #b44fff88",borderRadius:"10px",
+          opacity:"1",pointerEvents:"none",zIndex:"-1",
+          boxShadow:"0 8px 32px rgba(180,79,255,0.25)",
+        });
+        document.body.appendChild(ghost);
+        e.dataTransfer.setDragImage(ghost,e.nativeEvent.offsetX,e.nativeEvent.offsetY);
+        setTimeout(()=>{
+          document.body.removeChild(ghost);
+          src.style.opacity="0.4";
+        },0);
         setDragging(task.id);
       }}
       onDragEnd={e=>{

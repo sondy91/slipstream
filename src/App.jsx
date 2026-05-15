@@ -407,13 +407,12 @@ function BoardCard({ task, requests, linkMode, onCardClick, setDragging }) {
       onClick={()=>onCardClick(task.id,"task")}
       onDragStart={e=>{
         e.dataTransfer.effectAllowed="move";
-        e.currentTarget.style.opacity="0.35";
-        e.currentTarget.style.cursor="grabbing";
+        const el=e.currentTarget;
+        setTimeout(()=>{ el.style.opacity="0.4"; },0);
         setDragging(task.id);
       }}
       onDragEnd={e=>{
         e.currentTarget.style.opacity="1";
-        e.currentTarget.style.cursor="grab";
         setDragging(null);
       }}
     >

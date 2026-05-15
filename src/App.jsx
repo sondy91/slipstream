@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, useDroppable, useDraggable } from "@dnd-kit/core";
 
 /* ── Nightrun canvas background ── */
 function NightrunBg() {
@@ -357,80 +358,85 @@ export default function App() {
    BOARD
 ═══════════════════════════════════════════════════════════════ */
 function BoardView({ tasks, requests, updateTask, filterBy, setFilterBy, onCardClick, linkMode }) {
-  const [dragging,setDragging]=useState(null);
-  const [dragOver,setDragOver]=useState(null);
-  const filtered=filterBy==="All"?tasks:tasks.filter(t=>t.assignee===filterBy);
-  const drop=(status)=>{ if(!dragging) return; updateTask(dragging,{status}); setDragging(null);setDragOver(null); };
-  const cols=STATUSES.map(s=>({key:s,label:s,items:filtered.filter(t=>t.status===s),dot:STATUS_META[s].dot}));
+  const [activeId, setActiveId] = useState(null);
+  const filtered = filterBy==="All" ? tasks : tasks.filter(t=>t.assignee===filterBy);
+  const cols = STATUSES.map(s=>({key:s, label:s, items:filtered.filter(t=>t.status===s), dot:STATUS_META[s].dot}));
+  const activeTask = tasks.find(t=>t.id===activeId);
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint:{ distance:6 } }));
 
   return(
-    <div>
-      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:20,flexWrap:"wrap"}}>
-        <span style={{fontSize:12,color:"#5a4870"}}>Assignee:</span>
-        {["All",...TEAM].map(a=>(
-          <button key={a} onClick={()=>setFilterBy(a)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:filterBy===a?"#b44fff":"#100820",borderColor:filterBy===a?"#b44fff":"#1e1430",color:filterBy===a?"#fff":"#7a7890"}}>{a}</button>
-        ))}
-        <span style={{marginLeft:"auto",fontSize:12,color:"#444458"}}>{filtered.length} tasks</span>
+    <DndContext
+      sensors={sensors}
+      onDragStart={({active})=>setActiveId(active.id)}
+      onDragEnd={({active,over})=>{
+        if(over && over.id !== tasks.find(t=>t.id===active.id)?.status) updateTask(active.id,{status:over.id});
+        setActiveId(null);
+      }}
+      onDragCancel={()=>setActiveId(null)}
+    >
+      <div>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:20,flexWrap:"wrap"}}>
+          <span style={{fontSize:12,color:"#5a4870"}}>Assignee:</span>
+          {["All",...TEAM].map(a=>(
+            <button key={a} onClick={()=>setFilterBy(a)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:filterBy===a?"#b44fff":"#100820",borderColor:filterBy===a?"#b44fff":"#1e1430",color:filterBy===a?"#fff":"#7a7890"}}>{a}</button>
+          ))}
+          <span style={{marginLeft:"auto",fontSize:12,color:"#444458"}}>{filtered.length} tasks</span>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:`repeat(${cols.length},1fr)`,gap:12}}>
+          {cols.map(col=>(
+            <DroppableColumn key={col.key} col={col} requests={requests} linkMode={linkMode} onCardClick={onCardClick} activeId={activeId} />
+          ))}
+        </div>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:`repeat(${cols.length},1fr)`,gap:12}}>
-        {cols.map(col=>(
-          <div key={col.key} className={dragOver===col.key?"dc":""} style={{background:"#080610",border:"1px solid #140f22",borderRadius:12,padding:12,minHeight:280,transition:"all .15s"}}
-            onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect="move";setDragOver(col.key);}} onDrop={()=>drop(col.key)} onDragLeave={()=>setDragOver(null)}>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,paddingBottom:10,borderBottom:"1px solid #140f22"}}>
-              <span className="dot" style={{background:col.dot}}></span>
-              <span style={{fontSize:12,fontWeight:600,color:"#8a80a8",letterSpacing:".05em",textTransform:"uppercase"}}>{col.label}</span>
-              <span style={{marginLeft:"auto",background:"#140f22",borderRadius:4,padding:"1px 7px",fontSize:11,color:"#5a4870"}}>{col.items.length}</span>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {col.items.map(task=>(
-                <BoardCard key={task.id} task={task} requests={requests} linkMode={linkMode} onCardClick={onCardClick} setDragging={setDragging} />
-              ))}
-            </div>
-          </div>
+      <DragOverlay dropAnimation={null}>
+        {activeTask ? <BoardCardContent task={activeTask} requests={requests} isOverlay /> : null}
+      </DragOverlay>
+    </DndContext>
+  );
+}
+
+function DroppableColumn({ col, requests, linkMode, onCardClick, activeId }) {
+  const {setNodeRef, isOver} = useDroppable({id: col.key});
+  return(
+    <div ref={setNodeRef} className={isOver?"dc":""} style={{background:"#080610",border:`1px solid ${isOver?"#b44fff55":"#140f22"}`,borderRadius:12,padding:12,minHeight:280,transition:"border-color .15s, box-shadow .15s",boxShadow:isOver?"0 0 0 1px #b44fff33, inset 0 0 20px rgba(180,79,255,0.04)":"none"}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,paddingBottom:10,borderBottom:"1px solid #140f22"}}>
+        <span className="dot" style={{background:col.dot}}></span>
+        <span style={{fontSize:12,fontWeight:600,color:"#8a80a8",letterSpacing:".05em",textTransform:"uppercase"}}>{col.label}</span>
+        <span style={{marginLeft:"auto",background:"#140f22",borderRadius:4,padding:"1px 7px",fontSize:11,color:"#5a4870"}}>{col.items.length}</span>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {col.items.map(task=>(
+          <DraggableCard key={task.id} task={task} requests={requests} linkMode={linkMode} onCardClick={onCardClick} isDragging={activeId===task.id} />
         ))}
       </div>
     </div>
   );
 }
 
-function BoardCard({ task, requests, linkMode, onCardClick, setDragging }) {
+function DraggableCard({ task, requests, linkMode, onCardClick, isDragging }) {
+  const {attributes, listeners, setNodeRef} = useDraggable({id: task.id});
+  return(
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={{opacity: isDragging ? 0.35 : 1, cursor:"grab", touchAction:"none", outline:"none"}}
+      onClick={()=>!isDragging && onCardClick(task.id,"task")}
+    >
+      <BoardCardContent task={task} requests={requests} linkMode={linkMode} />
+    </div>
+  );
+}
+
+function BoardCardContent({ task, requests, linkMode, isOverlay }) {
   const pm=PRIORITY_META[task.priority]||PRIORITY_META["M"];
   const lm=task.label?LABEL_META[task.label]:null;
   const isSrc=linkMode?.sourceId===task.id;
   const isTgt=linkMode&&!isSrc;
   const blockedReqs=(task.reqDeps||[]).map(rid=>requests.find(r=>r.id===rid)).filter(Boolean);
   return(
-    <div
-      className={`card${isSrc?" lsrc":""}${isTgt?" ltgt":""}`}
-      draggable
-      style={{cursor:"grab"}}
-      onClick={()=>onCardClick(task.id,"task")}
-      onDragStart={e=>{
-        e.dataTransfer.effectAllowed="move";
-        const src=e.currentTarget;
-        // Clone with solid bg so ghost renders correctly on dark theme
-        const ghost=src.cloneNode(true);
-        const w=src.offsetWidth;
-        Object.assign(ghost.style,{
-          position:"fixed",top:"-9999px",left:"-9999px",
-          width:w+"px",background:"#0c0818",
-          border:"1px solid #b44fff88",borderRadius:"10px",
-          opacity:"1",pointerEvents:"none",zIndex:"-1",
-          boxShadow:"0 8px 32px rgba(180,79,255,0.25)",
-        });
-        document.body.appendChild(ghost);
-        e.dataTransfer.setDragImage(ghost,e.nativeEvent.offsetX,e.nativeEvent.offsetY);
-        setTimeout(()=>{
-          document.body.removeChild(ghost);
-          src.style.opacity="0.4";
-        },0);
-        setDragging(task.id);
-      }}
-      onDragEnd={e=>{
-        e.currentTarget.style.opacity="1";
-        setDragging(null);
-      }}
-    >
+    <div className={`card${isSrc?" lsrc":""}${isTgt?" ltgt":""}`} style={isOverlay?{boxShadow:"0 12px 40px rgba(180,79,255,0.3)",border:"1px solid #b44fff88",cursor:"grabbing"}:{}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:8}}>
         <span style={{fontSize:13,fontWeight:500,lineHeight:1.4,color:task.status==="Done"?"#3a3055":"#f0e8ff",textDecoration:task.status==="Done"?"line-through":"none",flex:1}}>{task.title}</span>
         <span className="badge" style={{background:pm.bg,color:pm.color,flexShrink:0}}>{task.priority}</span>

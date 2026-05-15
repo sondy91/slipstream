@@ -323,7 +323,7 @@ export default function App() {
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:4,background:"rgba(6,4,15,0.7)",border:"1px solid #1e1430",borderRadius:8,padding:3}}>
-          {[["board","⬚ Board"],["plan","⬡ Plan"],["requests","⇄ Requests"],["lead","◈ Leadership"]].map(([v,l])=>(
+          {[["board","⬚ Board"],["plan","⬡ Plan"],["requests","⇄ Requests"],["lead","◈ The Bridge"]].map(([v,l])=>(
             <button key={v} className={`vbtn${view===v?" act":""}`} onClick={()=>setView(v)}>{l}</button>
           ))}
         </div>

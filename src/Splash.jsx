@@ -175,10 +175,10 @@ function TunnelSplash({ onEnter }) {
       if (frame > 20)  logoAlpha = Math.min(1, logoAlpha + 0.05);
       if (frame > 50)  tagAlpha  = Math.min(1, tagAlpha  + 0.04);
 
-      // Show clickable CTA once fully faded in
+      // Auto-transition once animation completes
       if (tagAlpha >= 0.99 && !showCTARef.current) {
         showCTARef.current = true;
-        setShowCTA(true);
+        setTimeout(() => onEnter(), 1000); // Wait 1 second after fade in completes
       }
 
       renderer.render(scene, camera);
@@ -196,27 +196,6 @@ function TunnelSplash({ onEnter }) {
   }, []);
 
   return (
-    <div ref={mountRef} style={{ width:"100%", height:"100%", position:"relative" }}>
-      {showCTA && (
-        <button
-          onClick={onEnter}
-          style={{
-            position:"absolute", top:"calc(50% + 90px)", left:"50%", transform:"translateX(-50%)",
-            background:"transparent", border:"1px solid rgba(255,255,255,0.18)",
-            color:"rgba(255,255,255,0.4)", fontFamily:"'Barlow Condensed', sans-serif",
-            fontSize:13, fontWeight:400, letterSpacing:"0.22em", textTransform:"uppercase",
-            padding:"10px 28px", borderRadius:3, cursor:"pointer",
-            transition:"all 0.25s", animation:"cta-fade 0.8s ease forwards",
-          }}
-          onMouseEnter={e => { e.target.style.color="#fff"; e.target.style.borderColor="rgba(0,212,255,0.5)"; e.target.style.boxShadow="0 0 20px rgba(0,212,255,0.15)"; }}
-          onMouseLeave={e => { e.target.style.color="rgba(255,255,255,0.4)"; e.target.style.borderColor="rgba(255,255,255,0.18)"; e.target.style.boxShadow="none"; }}
-        >
-          Enter Workspace
-        </button>
-      )}
-      <style>{`
-        @keyframes cta-fade { from{opacity:0;transform:translateX(-50%) translateY(6px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
-      `}</style>
-    </div>
+    <div ref={mountRef} style={{ width:"100%", height:"100%", position:"relative" }} />
   );
 }

@@ -40,7 +40,7 @@ function NightrunBg() {
 /* ── Constants ── */
 const TEAM        = ["Austin","Maya","Jordan","Sam","Riley"];
 const PRIORITIES  = ["H+","H","M","L","L-"];
-const STATUSES    = ["Todo","In Progress","Blocked","Done"];
+const STATUSES    = ["Todo","In Progress","In Review","Blocked","Done"];
 const MILESTONES  = ["Sprint 1","Sprint 2","Backlog"];
 const LABELS      = ["feature","bug","infra","docs","debt"];
 const EXT_STATUSES= ["Pending","In Review","Approved","Rejected","On Hold"];
@@ -64,6 +64,7 @@ const LABEL_META = {
 const STATUS_META = {
   "Todo":        { color:"#5a4870", dot:"#5a4870", line:"#5a4870" },
   "In Progress": { color:"#00d4ff", dot:"#00d4ff", line:"#00d4ff" },
+  "In Review":   { color:"#cc99ff", dot:"#b44fff", line:"#b44fff" },
   "Blocked":     { color:"#ff3d6e", dot:"#ff3d6e", line:"#ff3d6e" },
   "Done":        { color:"#6ee7b7", dot:"#10b981", line:"#10b981" },
 };
@@ -77,24 +78,26 @@ const EXT_STATUS_META = {
 };
 
 function uid() { return Math.random().toString(36).slice(2,9); }
-const mkTask=(o={})=>({id:uid(),title:"",assignee:TEAM[0],priority:"M",status:"Todo",milestone:MILESTONES[0],deps:[],reqDeps:[],notes:"",label:"",startDate:"",endDate:"",...o});
+const mkTask=(o={})=>({id:uid(),title:"",assignee:TEAM[0],priority:"M",status:"Todo",milestone:MILESTONES[0],deps:[],reqDeps:[],notes:"",label:"",startDate:"",endDate:"",emoji:"",checklist:[],lastMoved:new Date().toISOString(),...o});
 
 /* ── Seed data ── */
-const S0=mkTask({title:"Design auth service API",      assignee:"Austin",priority:"H+",status:"Done",       milestone:"Sprint 1",notes:"OAuth2 + JWT",            startDate:"2025-01-06",endDate:"2025-01-10",label:"feature"});
-const S1=mkTask({title:"Implement token refresh logic",assignee:"Maya",  priority:"H+",status:"In Progress",milestone:"Sprint 1",notes:"",                        startDate:"2025-01-10",endDate:"2025-01-17",label:"feature"});
-const S2=mkTask({title:"Set up ArgoCD pipelines",     assignee:"Austin",priority:"H", status:"In Progress",milestone:"Sprint 1",notes:"Blocked on cluster access",startDate:"2025-01-08",endDate:"2025-01-20",label:"infra"  });
-const S3=mkTask({title:"Write integration tests",     assignee:"Jordan",priority:"H", status:"Blocked",    milestone:"Sprint 1",notes:"Needs auth done",          startDate:"2025-01-15",endDate:"2025-01-22",label:"bug"    });
-const S4=mkTask({title:"Deploy staging environment",  assignee:"Sam",   priority:"H", status:"Todo",       milestone:"Sprint 2",notes:"",                        startDate:"2025-01-20",endDate:"2025-01-27",label:"infra"  });
-const S5=mkTask({title:"Prometheus metrics setup",    assignee:"Riley", priority:"M", status:"Todo",       milestone:"Sprint 2",notes:"",                        startDate:"2025-01-22",endDate:"2025-01-29",label:"infra"  });
-const S6=mkTask({title:"Frontend dashboard MVP",      assignee:"Maya",  priority:"H", status:"Todo",       milestone:"Sprint 2",notes:"",                        startDate:"2025-01-24",endDate:"2025-02-05",label:"feature"});
-const S7=mkTask({title:"Load testing",                assignee:"Jordan",priority:"L", status:"Todo",       milestone:"Backlog", notes:"",                        startDate:"2025-02-03",endDate:"2025-02-10",label:"bug"    });
+const now=new Date();
+const days=(d)=>new Date(now.getTime()+d*86400000).toISOString();
+const S0=mkTask({title:"Design auth service API",      assignee:"Austin",priority:"H+",status:"Done",       milestone:"Sprint 1",notes:"OAuth2 + JWT",            startDate:"2025-01-06",endDate:"2025-01-10",label:"feature",lastMoved:days(-15)});
+const S1=mkTask({title:"Implement token refresh logic",assignee:"Maya",  priority:"H+",status:"In Progress",milestone:"Sprint 1",notes:"",                        startDate:"2025-01-10",endDate:"2025-01-17",label:"feature",dueDate:new Date(now.getTime()+2*86400000).toISOString().slice(0,10),lastMoved:days(-3)});
+const S2=mkTask({title:"Set up ArgoCD pipelines",     assignee:"Austin",priority:"H", status:"In Progress",milestone:"Sprint 1",notes:"Blocked on cluster access",startDate:"2025-01-08",endDate:"2025-01-20",label:"infra",lastMoved:days(-10)});
+const S3=mkTask({title:"Write integration tests",     assignee:"Jordan",priority:"H", status:"Blocked",    milestone:"Sprint 1",notes:"Needs auth done",          startDate:"2025-01-15",endDate:"2025-01-22",label:"bug",lastMoved:days(-5)});
+const S4=mkTask({title:"Deploy staging environment",  assignee:"Sam",   priority:"H", status:"Todo",       milestone:"Sprint 2",notes:"",                        startDate:"2025-01-20",endDate:"2025-01-27",label:"infra",dueDate:new Date(now.getTime()-1*86400000).toISOString().slice(0,10),lastMoved:days(-1)});
+const S5=mkTask({title:"Prometheus metrics setup",    assignee:"Riley", priority:"M", status:"Todo",       milestone:"Sprint 2",notes:"",                        startDate:"2025-01-22",endDate:"2025-01-29",label:"infra",lastMoved:days(-2)});
+const S6=mkTask({title:"Frontend dashboard MVP",      assignee:"Maya",  priority:"H", status:"Todo",       milestone:"Sprint 2",notes:"",                        startDate:"2025-01-24",endDate:"2025-02-05",label:"feature",lastMoved:days(-1)});
+const S7=mkTask({title:"Load testing",                assignee:"Jordan",priority:"L", status:"Todo",       milestone:"Backlog", notes:"",                        startDate:"2025-02-03",endDate:"2025-02-10",label:"bug",lastMoved:days(-1)});
 S1.deps=[S0.id]; S3.deps=[S1.id]; S4.deps=[S2.id]; S6.deps=[S4.id]; S7.deps=[S3.id,S5.id];
 const SEED_TASKS=[S0,S1,S2,S3,S4,S5,S6,S7];
 
-const mkReq=(o={})=>({id:uid(),title:"",team:"",assignee:TEAM[0],status:"Pending",notes:"",created:new Date().toISOString().slice(0,10),...o});
-const R0=mkReq({title:"API access to DataWarehouse",team:"Data Platform",assignee:"Austin",status:"In Review",notes:"Submitted Jan 8", created:"2025-01-08"});
-const R1=mkReq({title:"Cloud budget increase Q1",   team:"FinOps",       assignee:"Sam",   status:"Pending",  notes:"Awaiting director sign-off",created:"2025-01-12"});
-const R2=mkReq({title:"SSL cert renewal",           team:"SecOps",       assignee:"Riley", status:"Approved", notes:"Approved Jan 15",created:"2025-01-10"});
+const mkReq=(o={})=>({id:uid(),title:"",team:"",assignee:TEAM[0],status:"Pending",notes:"",created:new Date().toISOString().slice(0,10),link:"",...o});
+const R0=mkReq({title:"API access to DataWarehouse",team:"Data Platform",assignee:"Austin",status:"In Review",notes:"Submitted Jan 8", created:"2025-01-08",link:"https://jira.example.com/DATA-1234"});
+const R1=mkReq({title:"Cloud budget increase Q1",   team:"FinOps",       assignee:"Sam",   status:"Pending",  notes:"Awaiting director sign-off",created:"2025-01-12",link:"https://jira.example.com/FIN-567"});
+const R2=mkReq({title:"SSL cert renewal",           team:"SecOps",       assignee:"Riley", status:"Approved", notes:"Approved Jan 15",created:"2025-01-10",link:"https://jira.example.com/SEC-890"});
 // Wire S2 to depend on R0 (can't deploy ArgoCD without DataWarehouse API access)
 S2.reqDeps=[R0.id];
 const SEED_REQS=[R0,R1,R2];
@@ -116,7 +119,7 @@ const GLOBAL_CSS = `
 @keyframes nr-streak{from{transform:translateX(-140%)}to{transform:translateX(280%)}}
 .nr-streak{animation:nr-streak 2.8s linear infinite;}
 
-.vbtn{background:none;border:1px solid transparent;cursor:pointer;padding:6px 16px;border-radius:4px;font-family:inherit;font-size:14px;font-weight:600;color:#5a4870;transition:all .15s;letter-spacing:.08em;}
+.vbtn{background:none;border:1px solid transparent;cursor:pointer;padding:6px 16px;border-radius:4px;font-family:inherit;font-size:14px;font-weight:600;color:#b8a8d0;transition:all .15s;letter-spacing:.08em;}
 .vbtn.act{background:rgba(180,79,255,0.15);border-color:rgba(180,79,255,0.333);color:#b44fff;}
 .vbtn:hover:not(.act){color:#c4b5ff;border-color:rgba(180,79,255,0.15);}
 
@@ -128,12 +131,12 @@ const GLOBAL_CSS = `
 
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .15s;letter-spacing:.04em;}
 .p{background:linear-gradient(135deg,#b44fff,#00d4ff);color:#fff;border:none;text-shadow:0 1px 4px rgba(0,0,0,.3);}.p:hover{background:linear-gradient(135deg,#a040e8,#00bfee);box-shadow:0 0 20px rgba(180,79,255,.4);}
-.g{background:#140f22;color:#8a80a8;border:1px solid #1e1430;}.g:hover{background:#1a1430;color:#f0e8ff;}
+.g{background:#140f22;color:#d0c8e8;border:1px solid #1e1430;}.g:hover{background:#1a1430;color:#f0e8ff;}
 .dr{background:#1e1010;color:#ef4444;border:1px solid #3a1515;}.dr:hover{background:#2a1515;}
 .sm{padding:4px 10px!important;font-size:12px!important;border-radius:5px!important;}
 
 .fl{display:flex;flex-direction:column;gap:5px;}
-.fl label{font-size:11px;font-weight:600;color:#5a4870;text-transform:uppercase;letter-spacing:.06em;}
+.fl label{font-size:11px;font-weight:600;color:#b8a8d0;text-transform:uppercase;letter-spacing:.06em;}
 .inp{background:#100820;border:1px solid #1e1430;border-radius:7px;color:#f0e8ff;font-family:inherit;font-size:13px;padding:8px 12px;width:100%;outline:none;transition:border .15s;}
 .inp:focus{border-color:#b44fff;box-shadow:0 0 0 2px rgba(180,79,255,.15);}
 select.inp option{background:#100820;}
@@ -151,6 +154,103 @@ textarea.inp{resize:vertical;min-height:64px;}
 `;
 
 /* ═══════════════════════════════════════════════════════════════
+   KONAMI CODE EASTER EGG
+═══════════════════════════════════════════════════════════════ */
+function KonamiBlast(){
+  const [blasts,setBlasts]=useState([]);
+  
+  useEffect(()=>{
+    const interval=setInterval(()=>{
+      const x=Math.random()*window.innerWidth;
+      const y=Math.random()*window.innerHeight;
+      const id=Date.now();
+      setBlasts(prev=>[...prev,{id,x,y}]);
+      setTimeout(()=>setBlasts(prev=>prev.filter(b=>b.id!==id)),3000);
+    },300);
+    return()=>clearInterval(interval);
+  },[]);
+  
+  return(
+    <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:9999}}>
+      {blasts.map(blast=>(
+        <EmojiBlast key={blast.id} x={blast.x} y={blast.y} />
+      ))}
+    </div>
+  );
+}
+
+function EmojiBlast({x,y}){
+  const emojis=["🎉","🚀","✨","🎊","⭐","💫","🌟","🔥","🎯","💥","🎈","🎁","🏆","👾","🕹️"];
+  const particles=Array.from({length:15},(_,i)=>{
+    const angle=Math.random()*Math.PI*2;
+    const velocity=100+Math.random()*150;
+    const vx=Math.cos(angle)*velocity;
+    const vy=Math.sin(angle)*velocity-100;
+    return {
+      id:i,
+      emoji:emojis[Math.floor(Math.random()*emojis.length)],
+      vx,vy,
+      duration:1.5+Math.random()*0.5
+    };
+  });
+  
+  return particles.map(p=>(
+    <div key={p.id} style={{position:"absolute",left:x,top:y,fontSize:20,animation:`kblast-${x}-${p.id} ${p.duration}s ease-out forwards`}}>
+      {p.emoji}
+      <style>{`@keyframes kblast-${x}-${p.id}{0%{transform:translate(0,0) rotate(0deg) scale(1);opacity:1}100%{transform:translate(${p.vx}px,${p.vy+300}px) rotate(${Math.random()*720-360}deg) scale(0.3);opacity:0}}`}</style>
+    </div>
+  ));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CELEBRATION OVERLAY
+═══════════════════════════════════════════════════════════════ */
+function CelebrationOverlay({taskTitle,originX,originY}){
+  const emojis=["🎉","🚀","✨","🎊","⭐","💫","🌟","✨","🎯","🔥"];
+  const particles=Array.from({length:30},(_,i)=>{
+    const angle=Math.random()*Math.PI*2;
+    const velocity=150+Math.random()*200; // Increased velocity
+    const vx=Math.cos(angle)*velocity;
+    const vy=Math.sin(angle)*velocity-150; // More upward initial velocity
+    return {
+      id:i,
+      emoji:emojis[Math.floor(Math.random()*emojis.length)],
+      vx,
+      vy,
+      delay:Math.random()*0.1,
+      duration:2+Math.random()*1 // Longer duration
+    };
+  });
+  
+  return(
+    <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:9999}}>
+      {particles.map(p=>(
+        <div key={p.id} 
+          style={{
+            position:"absolute",
+            left:originX,
+            top:originY,
+            fontSize:24,
+            animation:`explode-${p.id} ${p.duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${p.delay}s forwards`
+          }}>
+          {p.emoji}
+          <style>{`
+            @keyframes explode-${p.id} {
+              0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+              30% { transform: translate(${p.vx*0.5}px, ${p.vy*0.5}px) rotate(${Math.random()*180-90}deg) scale(1.2); opacity: 1; }
+              100% { transform: translate(${p.vx}px, ${p.vy+400}px) rotate(${Math.random()*720-360}deg) scale(0.3); opacity: 0; }
+            }
+          `}</style>
+        </div>
+      ))}
+      <div style={{position:"absolute",top:20,left:"50%",transform:"translateX(-50%)",background:"rgba(180,79,255,0.95)",color:"#fff",padding:"12px 24px",borderRadius:8,fontSize:14,fontWeight:600,boxShadow:"0 4px 12px rgba(0,0,0,0.3)"}}>
+        ✅ {taskTitle}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
    APP
 ═══════════════════════════════════════════════════════════════ */
 export default function App() {
@@ -164,18 +264,126 @@ export default function App() {
   const [newReq,   setNewReq]   = useState(false);
   const [filterBy, setFilterBy] = useState("All");
   const [exportOpen,setExportOpen]=useState(false);
+  const [standupOpen,setStandupOpen]=useState(false);
+  const [powerupsOpen,setPowerupsOpen]=useState(false);
+  const [powerUps,setPowerUps]=useState({
+    autoReview:false,
+    staleAlert:true,
+    staleDays:7,
+    autoAssign:false,
+    autoAssignee:"",
+    cascadeBlock:true,
+    dueSoon:true,
+    dueDays:3
+  });
+  const [celebration,setCelebration]=useState(null);
+  const [konamiActive,setKonamiActive]=useState(false);
+
+  // Konami code: ↑ ↑ ↓ ↓ ← → ← → B A
+  useEffect(()=>{
+    const konamiCode=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    let konamiIndex=0;
+    const handleKey=(e)=>{
+      if(e.key.toLowerCase()===konamiCode[konamiIndex].toLowerCase()){
+        konamiIndex++;
+        if(konamiIndex===konamiCode.length){
+          setKonamiActive(true);
+          setTimeout(()=>setKonamiActive(false),5000);
+          konamiIndex=0;
+        }
+      }else{
+        konamiIndex=0;
+      }
+    };
+    window.addEventListener('keydown',handleKey);
+    return()=>window.removeEventListener('keydown',handleKey);
+  },[]);
 
   useEffect(()=>{
     const PMAP={"P0":"H+","P1":"H","P2":"M"};
     const migrate=t=>({...t, priority: PMAP[t.priority]||t.priority, deps:t.deps||[], reqDeps:t.reqDeps||[]});
     try{ const r=localStorage.getItem("mx-tasks"); if(r) setTasks(JSON.parse(r).map(migrate)); }catch{}
     try{ const r=localStorage.getItem("mx-reqs");  if(r) setRequests(JSON.parse(r)); }catch{}
+    try{ const p=localStorage.getItem("mx-powerups"); if(p) setPowerUps(JSON.parse(p)); }catch{}
   },[]);
 
   const saveTasks=useCallback(t=>{ setTasks(t); try{localStorage.setItem("mx-tasks",JSON.stringify(t));}catch{} },[]);
   const saveReqs =useCallback(r=>{ setRequests(r); try{localStorage.setItem("mx-reqs", JSON.stringify(r));}catch{} },[]);
+  
+  // Save power-ups to localStorage whenever they change
+  useEffect(()=>{
+    try{ localStorage.setItem("mx-powerups",JSON.stringify(powerUps)); }catch{}
+  },[powerUps]);
 
-  const updateTask=(id,p)=>saveTasks(tasks.map(t=>t.id===id?{...t,...p}:t));
+  // Compute badge properties for a task based on power-up settings
+  const computeBadges=(task,allTasks,powerups)=>{
+    const badges={};
+    const now=new Date();
+    
+    // Stale detection
+    if(powerups.staleAlert && task.lastMoved){
+      const lastMovedDate=new Date(task.lastMoved);
+      const daysSince=Math.floor((now-lastMovedDate)/(1000*60*60*24));
+      if(daysSince>=powerups.staleDays && task.status!=="Done" && task.status!=="Blocked"){
+        badges._stale=true;
+      }
+    }
+    
+    // Due date warnings
+    if(powerups.dueSoon && task.dueDate){
+      const dueDate=new Date(task.dueDate);
+      const daysUntil=Math.floor((dueDate-now)/(1000*60*60*24));
+      if(daysUntil<0){
+        badges._overdue=true;
+      } else if(daysUntil<=powerups.dueDays){
+        badges._dueSoon=daysUntil;
+      }
+    }
+    
+    // Cascade block warning (check if any dependencies are blocked)
+    if(powerups.cascadeBlock && task.deps?.length>0){
+      const hasBlockedDep=task.deps.some(depId=>{
+        const dep=allTasks.find(t=>t.id===depId);
+        return dep?.status==="Blocked";
+      });
+      if(hasBlockedDep){
+        badges._cascadeWarning=true;
+      }
+    }
+    
+    return {...task,...badges};
+  };
+
+  const updateTask=(id,p)=>{
+    const oldTask=tasks.find(t=>t.id===id);
+    const statusChanged=p.status&&oldTask&&p.status!==oldTask.status;
+    let newTask={...oldTask,...p,lastMoved:statusChanged?new Date().toISOString():oldTask?.lastMoved};
+    
+    // Auto-assign when moving to In Progress
+    if(powerUps.autoAssign && statusChanged && p.status==="In Progress"){
+      newTask.assignee = powerUps.autoAssignee || TEAM[0];
+    }
+    
+    // Compute badge properties based on power-up settings
+    newTask = computeBadges(newTask, tasks, powerUps);
+    
+    // Apply cascade warnings if this task becomes Blocked
+    let updatedTasks = tasks.map(t=>t.id===id?newTask:t);
+    if(powerUps.cascadeBlock && statusChanged && p.status==="Blocked"){
+      updatedTasks = updatedTasks.map(t=>{
+        const dependsOnBlocked = (t.deps||[]).includes(id);
+        return dependsOnBlocked ? {...t, _cascadeWarning:true} : t;
+      });
+    } else if(statusChanged && oldTask?.status==="Blocked" && p.status!=="Blocked"){
+      // Clear cascade warnings when unblocking
+      updatedTasks = updatedTasks.map(t=>{
+        const dependedOnThis = (t.deps||[]).includes(id);
+        return dependedOnThis ? {...t, _cascadeWarning:false} : t;
+      });
+    }
+    
+    saveTasks(updatedTasks);
+  };
   const addTask   =(d)  =>saveTasks([...tasks,{...mkTask(),...d}]);
   const deleteTask=(id) =>saveTasks(tasks.filter(t=>t.id!==id).map(t=>({...t,deps:t.deps.filter(d=>d!==id)})));
   const unlinkDep =(tid,did)=>updateTask(tid,{deps:(tasks.find(t=>t.id===tid)?.deps||[]).filter(d=>d!==did)});
@@ -190,19 +398,28 @@ export default function App() {
     if(linkMode){
       if(linkMode.sourceId===itemId){setLinkMode(null);return;}
       if(linkMode.sourceType==="task" && itemType==="task"){
-        // task → task dep
+        // task → task dep: toggle link
         const tgt=tasks.find(t=>t.id===itemId);
-        if(tgt&&!tgt.deps.includes(linkMode.sourceId)) updateTask(itemId,{deps:[...tgt.deps,linkMode.sourceId]});
+        if(tgt){
+          const isLinked=tgt.deps.includes(linkMode.sourceId);
+          updateTask(itemId,{deps:isLinked?tgt.deps.filter(d=>d!==linkMode.sourceId):[...tgt.deps,linkMode.sourceId]});
+        }
       } else if(linkMode.sourceType==="req" && itemType==="task"){
-        // req → task: task blocked by request
+        // req → task: task blocked by request (toggle)
         const tgt=tasks.find(t=>t.id===itemId);
         const cur=tgt?.reqDeps||[];
-        if(tgt&&!cur.includes(linkMode.sourceId)) updateTask(itemId,{reqDeps:[...cur,linkMode.sourceId]});
+        if(tgt){
+          const isLinked=cur.includes(linkMode.sourceId);
+          updateTask(itemId,{reqDeps:isLinked?cur.filter(d=>d!==linkMode.sourceId):[...cur,linkMode.sourceId]});
+        }
       } else if(linkMode.sourceType==="task" && itemType==="req"){
-        // task → req: task blocked by request
+        // task → req: task blocked by request (toggle)
         const tgt=tasks.find(t=>t.id===linkMode.sourceId);
         const cur=tgt?.reqDeps||[];
-        if(tgt&&!cur.includes(itemId)) updateTask(linkMode.sourceId,{reqDeps:[...cur,itemId]});
+        if(tgt){
+          const isLinked=cur.includes(itemId);
+          updateTask(linkMode.sourceId,{reqDeps:isLinked?cur.filter(d=>d!==itemId):[...cur,itemId]});
+        }
       }
       setLinkMode(null);
     } else {
@@ -326,6 +543,8 @@ export default function App() {
           ))}
         </div>
         <div style={{flex:1,display:"flex",justifyContent:"flex-end",gap:8}}>
+          <button className="btn g" onClick={()=>setStandupOpen(true)}>🎙 Standup</button>
+          <button className="btn g" onClick={()=>setPowerupsOpen(true)}>⚡ Power-ups</button>
           <button className="btn g" onClick={()=>setExportOpen(true)}>↓ Export</button>
           {view==="requests"
             ?<button className="btn p" onClick={()=>setNewReq(true)}>+ New request</button>
@@ -333,30 +552,41 @@ export default function App() {
         </div>
       </div>
 
+      {/* Celebration overlay */}
+      {celebration&&<CelebrationOverlay taskTitle={celebration.title||celebration} originX={celebration.x||window.innerWidth/2} originY={celebration.y||window.innerHeight/2} />}
+
+      {/* Konami code easter egg */}
+      {konamiActive&&<KonamiBlast />}
+
+      {/* Floating link mode banner - absolutely positioned to avoid layout shift */}
       {linkMode&&(
-        <div style={{background:"#1a0d3a",borderBottom:"1px solid #5b21b6",padding:"10px 24px",display:"flex",alignItems:"center",gap:12,fontSize:13}}>
-          <span style={{color:"#cc99ff"}}>🔗 Link mode —</span>
-          <span style={{color:"#cc99ff"}}>
-            {linkMode.sourceType==="req"
-              ? <>Click a <strong>task</strong> to mark it as blocked by request "<strong>{requests.find(r=>r.id===linkMode.sourceId)?.title}</strong>"</>
-              : <>Click any card to link to "<strong>{tasks.find(t=>t.id===linkMode.sourceId)?.title}</strong>"</>}
-          </span>
-          <button className="btn g sm" style={{marginLeft:"auto"}} onClick={()=>setLinkMode(null)}>Cancel</button>
+        <div style={{position:"absolute",top:120,left:0,right:0,display:"flex",justifyContent:"center",zIndex:100,pointerEvents:"none"}}>
+          <div style={{background:"rgba(26,13,58,0.95)",backdropFilter:"blur(8px)",border:"1px solid #5b21b6",borderRadius:8,padding:"8px 16px",display:"flex",alignItems:"center",gap:10,fontSize:12,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",pointerEvents:"auto"}}>
+            <span style={{color:"#cc99ff",fontWeight:500}}>🔗</span>
+            <span style={{color:"#d0c8e8"}}>
+              {linkMode.sourceType==="req"
+                ? <>Link to <strong style={{color:"#cc99ff"}}>{requests.find(r=>r.id===linkMode.sourceId)?.title}</strong></>
+                : <>Link to <strong style={{color:"#cc99ff"}}>{tasks.find(t=>t.id===linkMode.sourceId)?.title}</strong></>}
+            </span>
+            <button className="btn g sm" style={{padding:"3px 10px",fontSize:11}} onClick={()=>setLinkMode(null)}>✕</button>
+          </div>
         </div>
       )}
 
       <div style={{padding:"20px 24px",position:"relative",zIndex:1}}>
-        {view==="board"    &&<BoardView    tasks={tasks} requests={requests} updateTask={updateTask} filterBy={filterBy} setFilterBy={setFilterBy} onCardClick={handleCardClick} linkMode={linkMode} />}
-        {view==="plan"     &&<PlanView     tasks={tasks} requests={requests} onCardClick={handleCardClick} linkMode={linkMode} setLinkMode={setLinkMode} unlinkDep={unlinkDep} unlinkReqDep={unlinkReqDep} />}
+        {view==="board"    &&<BoardView    tasks={tasks} requests={requests} updateTask={updateTask} filterBy={filterBy} setFilterBy={setFilterBy} onCardClick={handleCardClick} linkMode={linkMode} powerUps={powerUps} computeBadges={computeBadges} setCelebration={setCelebration} />}
+        {view==="plan"     &&<PlanView     tasks={tasks} requests={requests} onCardClick={handleCardClick} linkMode={linkMode} setLinkMode={setLinkMode} unlinkDep={unlinkDep} unlinkReqDep={unlinkReqDep} powerUps={powerUps} computeBadges={computeBadges} />}
         {view==="requests" &&<RequestsView requests={requests} tasks={tasks} onEdit={r=>handleCardClick(r.id,"req")} linkMode={linkMode} />}
         {view==="lead"     &&<LeaderView   tasks={tasks} requests={requests} />}
       </div>
 
-      {newTask  &&<TaskModal task={null}    tasks={tasks} requests={requests} onSave={d=>{addTask(d);setNewTask(false);}}              onClose={()=>setNewTask(false)} />}
-      {editTask &&<TaskModal task={editTask} tasks={tasks} requests={requests} onSave={d=>{updateTask(editTask.id,d);setEditTask(null);}} onDelete={()=>{deleteTask(editTask.id);setEditTask(null);}} onLink={()=>{setLinkMode({sourceId:editTask.id,sourceType:"task"});setEditTask(null);}} unlinkDep={unlinkDep} unlinkReqDep={unlinkReqDep} onClose={()=>setEditTask(null)} />}
+      {newTask  &&<TaskModal task={null}    tasks={tasks} requests={requests} onSave={d=>{addTask(d);setNewTask(false);}}              onClose={()=>setNewTask(false)} updateTask={updateTask} powerups={powerUps} />}
+      {editTask &&<TaskModal task={editTask} tasks={tasks} requests={requests} onSave={d=>{updateTask(editTask.id,d);setEditTask(null);}} onDelete={()=>{deleteTask(editTask.id);setEditTask(null);}} onLink={()=>{setLinkMode({sourceId:editTask.id,sourceType:"task"});setEditTask(null);}} unlinkDep={unlinkDep} unlinkReqDep={unlinkReqDep} onClose={()=>setEditTask(null)} updateTask={updateTask} powerups={powerUps} />}
       {newReq   &&<ReqModal  req={null}    tasks={tasks} onToggleTask={(tid,rid,on)=>{ const t=tasks.find(x=>x.id===tid); if(!t) return; const cur=t.reqDeps||[]; updateTask(tid,{reqDeps:on?[...cur,rid]:cur.filter(d=>d!==rid)}); }} onSave={d=>{addReq(d);setNewReq(false);}} onClose={()=>setNewReq(false)} />}
       {editReq  &&<ReqModal  req={editReq} tasks={tasks} onToggleTask={(tid,rid,on)=>{ const t=tasks.find(x=>x.id===tid); if(!t) return; const cur=t.reqDeps||[]; updateTask(tid,{reqDeps:on?[...cur,rid]:cur.filter(d=>d!==rid)}); }} onSave={d=>{updateReq(editReq.id,d);setEditReq(null);}} onDelete={()=>{deleteReq(editReq.id);setEditReq(null);}} onClose={()=>setEditReq(null)} />}
       {exportOpen&&<ExportModal md={exportMd()} onClose={()=>setExportOpen(false)} />}
+      {powerupsOpen&&<PowerupsModal powerups={powerUps} setPowerups={setPowerUps} onClose={()=>setPowerupsOpen(false)} />}
+      {standupOpen&&<StandupModal tasks={tasks} onClose={()=>setStandupOpen(false)} />}
     </div>
   );
 }
@@ -364,11 +594,13 @@ export default function App() {
 /* ═══════════════════════════════════════════════════════════════
    BOARD
 ═══════════════════════════════════════════════════════════════ */
-function BoardView({ tasks, requests, updateTask, filterBy, setFilterBy, onCardClick, linkMode }) {
+function BoardView({ tasks, requests, updateTask, filterBy, setFilterBy, onCardClick, linkMode, powerUps, computeBadges, setCelebration }) {
   const [activeId, setActiveId] = useState(null);
-  const filtered = filterBy==="All" ? tasks : tasks.filter(t=>t.assignee===filterBy);
+  const cardRefs = useRef({});
+  const tasksWithBadges = tasks.map(t=>computeBadges(t,tasks,powerUps));
+  const filtered = filterBy==="All" ? tasksWithBadges : tasksWithBadges.filter(t=>t.assignee===filterBy);
   const cols = STATUSES.map(s=>({key:s, label:s, items:filtered.filter(t=>t.status===s), dot:STATUS_META[s].dot}));
-  const activeTask = tasks.find(t=>t.id===activeId);
+  const activeTask = tasksWithBadges.find(t=>t.id===activeId);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint:{ distance:6 } }));
 
@@ -377,22 +609,40 @@ function BoardView({ tasks, requests, updateTask, filterBy, setFilterBy, onCardC
       sensors={sensors}
       onDragStart={({active})=>setActiveId(active.id)}
       onDragEnd={({active,over})=>{
-        if(over && over.id !== tasks.find(t=>t.id===active.id)?.status) updateTask(active.id,{status:over.id});
+        const oldStatus = tasks.find(t=>t.id===active.id)?.status;
+        if(over && over.id !== oldStatus) {
+          updateTask(active.id,{status:over.id});
+          // Wait a frame for DOM to update, then get card position
+          if(over.id === "Done") {
+            setTimeout(()=>{
+              const cardEl = cardRefs.current[active.id];
+              if(cardEl) {
+                const rect = cardEl.getBoundingClientRect();
+                setCelebration({
+                  title: tasks.find(t=>t.id===active.id)?.title,
+                  x: rect.left + rect.width / 2,
+                  y: rect.top + rect.height / 2
+                });
+                setTimeout(()=>setCelebration(null),3000);
+              }
+            },50);
+          }
+        }
         setActiveId(null);
       }}
       onDragCancel={()=>setActiveId(null)}
     >
       <div>
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:20,flexWrap:"wrap"}}>
-          <span style={{fontSize:12,color:"#5a4870"}}>Assignee:</span>
+          <span style={{fontSize:12,color:"#d0c8e8"}}>Assignee:</span>
           {["All",...TEAM].map(a=>(
-            <button key={a} onClick={()=>setFilterBy(a)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:filterBy===a?"#b44fff":"#100820",borderColor:filterBy===a?"#b44fff":"#1e1430",color:filterBy===a?"#fff":"#7a7890"}}>{a}</button>
+            <button key={a} onClick={()=>setFilterBy(a)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",fontWeight:500,transition:"all .15s",background:filterBy===a?"#b44fff":"#100820",borderColor:filterBy===a?"#b44fff":"#1e1430",color:filterBy===a?"#fff":"#d0c8e8"}}>{a}</button>
           ))}
-          <span style={{marginLeft:"auto",fontSize:12,color:"#444458"}}>{filtered.length} tasks</span>
+          <span style={{marginLeft:"auto",fontSize:12,color:"#b8a8d0"}}>{filtered.length} tasks</span>
         </div>
         <div style={{display:"grid",gridTemplateColumns:`repeat(${cols.length},1fr)`,gap:12}}>
           {cols.map(col=>(
-            <DroppableColumn key={col.key} col={col} requests={requests} linkMode={linkMode} onCardClick={onCardClick} activeId={activeId} />
+            <DroppableColumn key={col.key} col={col} requests={requests} linkMode={linkMode} onCardClick={onCardClick} activeId={activeId} cardRefs={cardRefs} />
           ))}
         </div>
       </div>
@@ -403,29 +653,29 @@ function BoardView({ tasks, requests, updateTask, filterBy, setFilterBy, onCardC
   );
 }
 
-function DroppableColumn({ col, requests, linkMode, onCardClick, activeId }) {
+function DroppableColumn({ col, requests, linkMode, onCardClick, activeId, cardRefs }) {
   const {setNodeRef, isOver} = useDroppable({id: col.key});
   return(
     <div ref={setNodeRef} className={isOver?"dc":""} style={{background:"#080610",border:`1px solid ${isOver?"#b44fff55":"#140f22"}`,borderRadius:12,padding:12,minHeight:280,transition:"border-color .15s, box-shadow .15s",boxShadow:isOver?"0 0 0 1px #b44fff33, inset 0 0 20px rgba(180,79,255,0.04)":"none"}}>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,paddingBottom:10,borderBottom:"1px solid #140f22"}}>
         <span className="dot" style={{background:col.dot}}></span>
-        <span style={{fontSize:12,fontWeight:600,color:"#8a80a8",letterSpacing:".05em",textTransform:"uppercase"}}>{col.label}</span>
-        <span style={{marginLeft:"auto",background:"#140f22",borderRadius:4,padding:"1px 7px",fontSize:11,color:"#5a4870"}}>{col.items.length}</span>
+        <span style={{fontSize:12,fontWeight:600,color:"#d0c8e8",letterSpacing:".05em",textTransform:"uppercase"}}>{col.label}</span>
+        <span style={{marginLeft:"auto",background:"#140f22",borderRadius:4,padding:"1px 7px",fontSize:11,color:"#b8a8d0"}}>{col.items.length}</span>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
         {col.items.map(task=>(
-          <DraggableCard key={task.id} task={task} requests={requests} linkMode={linkMode} onCardClick={onCardClick} isDragging={activeId===task.id} />
+          <DraggableCard key={task.id} task={task} requests={requests} linkMode={linkMode} onCardClick={onCardClick} isDragging={activeId===task.id} cardRefs={cardRefs} />
         ))}
       </div>
     </div>
   );
 }
 
-function DraggableCard({ task, requests, linkMode, onCardClick, isDragging }) {
+function DraggableCard({ task, requests, linkMode, onCardClick, isDragging, cardRefs }) {
   const {attributes, listeners, setNodeRef} = useDraggable({id: task.id});
   return(
     <div
-      ref={setNodeRef}
+      ref={el=>{setNodeRef(el);if(cardRefs?.current)cardRefs.current[task.id]=el;}}
       {...listeners}
       {...attributes}
       style={{opacity: isDragging ? 0.35 : 1, cursor:"grab", touchAction:"none", outline:"none"}}
@@ -443,26 +693,63 @@ function BoardCardContent({ task, requests, linkMode, isOverlay }) {
   const isTgt=linkMode&&!isSrc;
   const blockedReqs=(task.reqDeps||[]).map(rid=>requests.find(r=>r.id===rid)).filter(Boolean);
   const sm=STATUS_META[task.status];
+  
+  const hasBadges = task._stale || task._cascadeWarning || task._dueSoon || task._overdue || (task.deps||[]).length>0 || blockedReqs.length>0;
+  
   return(
     <div className={`card${isSrc?" lsrc":""}${isTgt?" ltgt":""}`} style={isOverlay?{boxShadow:"0 12px 40px rgba(180,79,255,0.3)",border:"1px solid #b44fff88",cursor:"grabbing"}:{}}>
       {/* Status-colored left glow bar */}
       <div style={{position:"absolute",top:0,left:0,bottom:0,width:2,background:sm.line,boxShadow:`0 0 8px ${sm.line}`,borderRadius:"10px 0 0 10px"}} />
-      <div style={{paddingLeft:6,display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:8}}>
-        <span style={{fontSize:13,fontWeight:500,lineHeight:1.4,color:task.status==="Done"?"#3a3055":"#f0e8ff",textDecoration:task.status==="Done"?"line-through":"none",flex:1}}>{task.title}</span>
-        <span className="badge" style={{color:pm.color}}>{task.priority}</span>
-      </div>
-      <div style={{paddingLeft:6,display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:blockedReqs.length?6:0}}>
-        <span style={{fontSize:11,color:"#5a4870",background:"#100820",padding:"2px 8px",borderRadius:4}}>{task.assignee}</span>
-        {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,border:`1px solid ${lm.color}44`}}>{task.label}</span>}
-        {(task.deps||[]).length>0&&<span style={{fontSize:11,color:"#b44fff"}}>⬡ {task.deps.length}</span>}
-        {blockedReqs.length>0&&<span style={{fontSize:11,color:"#f97316"}}>⇄ {blockedReqs.length}</span>}
-      </div>
-      {blockedReqs.map(r=>(
-        <div key={r.id} style={{fontSize:11,color:"#f97316",background:"#1e1208",padding:"2px 8px",borderRadius:4,marginTop:3,display:"flex",alignItems:"center",gap:4}}>
-          <span>⇄</span><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.title}</span>
+      
+      <div style={{paddingLeft:8}}>
+        {/* Title & Priority */}
+        <div style={{display:"flex",justifyContent:"space-between",gap:6,marginBottom:8}}>
+          <span style={{fontFamily:"'Inter Tight',sans-serif",fontSize:12,fontWeight:500,lineHeight:1.4,color:task.status==="Done"?"#3a3055":"#f0e8ff",textDecoration:task.status==="Done"?"line-through":"none",flex:1}}>
+            {task.emoji&&<span style={{marginRight:6}}>{task.emoji}</span>}
+            {task.title}
+          </span>
+          <span style={{fontFamily:"Rajdhani,sans-serif",fontSize:11,fontWeight:700,color:pm.color,flexShrink:0}}>{task.priority}</span>
         </div>
-      ))}
-      {task.notes&&<div style={{marginTop:7,fontSize:11,color:"#3a3055",lineHeight:1.4,borderTop:"1px solid #140f22",paddingTop:7}}>{task.notes}</div>}
+        
+        {/* Bottom row: Assignee on left, chips/badges on right */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,color:"#5a4870",letterSpacing:"0.08em"}}>{task.assignee}</span>
+          
+          <div style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap",justifyContent:"flex-end"}}>
+            {lm&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:lm.color,background:lm.bg,padding:"2px 7px",borderRadius:3,letterSpacing:"0.06em",lineHeight:1,display:"inline-block"}}>{task.label}</span>}
+            {(task.deps||[]).length>0&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:"#b44fff",background:"rgba(180,79,255,0.094)",padding:"3px 6px",borderRadius:3,lineHeight:1,display:"inline-flex",alignItems:"center",gap:"2px"}}>⬡{task.deps.length}</span>}
+            {blockedReqs.length>0&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:"#f97316",background:"rgba(249,115,22,0.094)",padding:"3px 6px",borderRadius:3,lineHeight:1,display:"inline-flex",alignItems:"center",gap:"2px"}}>⇄{blockedReqs.length}</span>}
+            {task._stale&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:11,fontWeight:600,color:"#f59e0b",background:"rgba(245,158,11,0.094)",padding:"3px 5px",borderRadius:3,lineHeight:1,display:"inline-block"}}>⏱</span>}
+            {task._cascadeWarning&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:11,fontWeight:600,color:"#f59e0b",background:"rgba(245,158,11,0.094)",padding:"3px 5px",borderRadius:3,lineHeight:1,display:"inline-block"}}>⚠</span>}
+            {task._dueSoon&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:"#f59e0b",background:"rgba(245,158,11,0.094)",padding:"3px 5px",borderRadius:3,lineHeight:1,display:"inline-flex",alignItems:"center",gap:"1px"}}>⏰{task._dueSoon}d</span>}
+            {task._overdue&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:"#ef4444",background:"rgba(239,68,68,0.094)",padding:"3px 5px",borderRadius:3,lineHeight:1,display:"inline-flex",alignItems:"center",gap:"1px"}}>⏰!</span>}
+          </div>
+        </div>
+        
+        {blockedReqs.map(r=>(
+          <div key={r.id} style={{fontSize:11,color:"#f97316",background:"#1e1208",padding:"2px 8px",borderRadius:4,marginTop:6,display:"flex",alignItems:"center",gap:4}}>
+            <span>⇄</span><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.title}</span>
+          </div>
+        ))}
+        
+        {task.notes&&<div style={{marginTop:7,fontSize:11,color:"#b8a8d0",lineHeight:1.4,borderTop:"1px solid #140f22",paddingTop:7}}>{task.notes}</div>}
+        
+        {task.checklist&&task.checklist.length>0&&(
+          <div style={{marginTop:7,borderTop:"1px solid #140f22",paddingTop:7}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+              <span style={{fontSize:10,color:"#b8a8d0"}}>
+                {task.checklist.filter(c=>c.done).length}/{task.checklist.length}
+              </span>
+              <span style={{fontSize:10,color:"#b8a8d0"}}>
+                {Math.round(task.checklist.filter(c=>c.done).length/task.checklist.length*100)}%
+              </span>
+            </div>
+            <div style={{height:4,background:"#140f22",borderRadius:2,overflow:"hidden"}}>
+              <div style={{height:"100%",background:"linear-gradient(90deg,#b44fff,#00d4ff)",width:`${task.checklist.filter(c=>c.done).length/task.checklist.length*100}%`,transition:"width .3s"}} />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -470,20 +757,22 @@ function BoardCardContent({ task, requests, linkMode, isOverlay }) {
 /* ═══════════════════════════════════════════════════════════════
    PLAN VIEW — smooth animation via stable SVG element keys
 ═══════════════════════════════════════════════════════════════ */
-function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkDep, unlinkReqDep }) {
+function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkDep, unlinkReqDep, powerUps, computeBadges }) {
   const [layout,setLayout]=useState({});
   const [reqLayout,setReqLayout]=useState({});
   const [hov,setHov]=useState(null);
-  const CW=210,CH=78,RW=170,RH=52,HG=80,VG=28;
+  const CW=280,CH=105,RW=230,RH=70,HG=100,VG=38;
+  
+  const tasksWithBadges = tasks.map(t=>computeBadges(t,tasks,powerUps));
 
   useEffect(()=>{
     // Topo sort tasks
     const lvl={};
-    tasks.forEach(t=>{lvl[t.id]=0;});
+    tasksWithBadges.forEach(t=>{lvl[t.id]=0;});
     let ch=true;
-    while(ch){ch=false;tasks.forEach(t=>(t.deps||[]).forEach(d=>{if((lvl[d]||0)>=(lvl[t.id]||0)){lvl[t.id]=(lvl[d]||0)+1;ch=true;}}));}
+    while(ch){ch=false;tasksWithBadges.forEach(t=>(t.deps||[]).forEach(d=>{if((lvl[d]||0)>=(lvl[t.id]||0)){lvl[t.id]=(lvl[d]||0)+1;ch=true;}}));}
     const byLvl={};
-    tasks.forEach(t=>{const l=lvl[t.id]||0;if(!byLvl[l])byLvl[l]=[];byLvl[l].push(t.id);});
+    tasksWithBadges.forEach(t=>{const l=lvl[t.id]||0;if(!byLvl[l])byLvl[l]=[];byLvl[l].push(t.id);});
     const pos={};
     Object.entries(byLvl).forEach(([l,ids])=>{
       const x=40+Number(l)*(CW+HG);
@@ -496,7 +785,7 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
     const rpos={};
     requests.forEach((r,i)=>{rpos[r.id]={x:40+i*(RW+20),y:maxTaskY+60};});
     setReqLayout(rpos);
-  },[tasks,requests]);
+  },[tasksWithBadges,requests]);
 
   const allPos={...layout,...reqLayout};
   const maxX=Math.max(...Object.values(allPos).map(p=>p.x+Math.max(CW,RW)),600)+60;
@@ -504,12 +793,12 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
 
   // Build edges: task→task and req→task
   const taskEdges=[];
-  tasks.forEach(t=>(t.deps||[]).forEach(did=>{
-    const dep=tasks.find(x=>x.id===did);
+  tasksWithBadges.forEach(t=>(t.deps||[]).forEach(did=>{
+    const dep=tasksWithBadges.find(x=>x.id===did);
     if(dep) taskEdges.push({fromId:did,toId:t.id,fromType:"task",toType:"task",color:STATUS_META[dep.status].line});
   }));
   const reqEdges=[];
-  tasks.forEach(t=>(t.reqDeps||[]).forEach(rid=>{
+  tasksWithBadges.forEach(t=>(t.reqDeps||[]).forEach(rid=>{
     const req=requests.find(r=>r.id===rid);
     if(req) reqEdges.push({fromId:rid,toId:t.id,fromType:"req",toType:"task",color:"#f97316"});
   }));
@@ -534,10 +823,10 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
   return(
     <div>
       <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14,flexWrap:"wrap"}}>
-        <span style={{fontSize:13,color:"#7a7890"}}>Line color = source status. Hover to unlink. Orange lines = request blockers.</span>
+        <span style={{fontSize:13,color:"#b8a8d0"}}>Line color = source status. Hover to unlink. Orange lines = request blockers.</span>
         <div style={{marginLeft:"auto",display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
           {Object.entries(STATUS_META).map(([s,m])=>(
-            <div key={s} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#7a7890"}}>
+            <div key={s} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#b8a8d0"}}>
               <span style={{display:"block",width:18,height:2,background:m.line,borderRadius:1}}></span>{s}
             </div>
           ))}
@@ -546,7 +835,7 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
           </div>
         </div>
       </div>
-      {requests.length>0&&<div style={{fontSize:11,color:"#5a4870",marginBottom:10}}>⇄ Requests shown below tasks — orange lines connect them to blocked tasks.</div>}
+      {requests.length>0&&<div style={{fontSize:11,color:"#b8a8d0",marginBottom:10}}>⇄ Requests shown below tasks — orange lines connect them to blocked tasks.</div>}
 
       <div style={{overflow:"auto",position:"relative",minHeight:420}}>
         <svg width={maxX} height={maxY} style={{display:"block",position:"absolute",top:0,left:0,pointerEvents:"none"}}>
@@ -594,7 +883,7 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
 
         <div style={{position:"relative",width:maxX,height:maxY}}>
           {/* Task cards */}
-          {tasks.map(task=>{
+          {tasksWithBadges.map(task=>{
             const pos=layout[task.id]; if(!pos) return null;
             const isSrc=linkMode?.sourceId===task.id, isTgt=linkMode&&!isSrc;
             const pm=PRIORITY_META[task.priority]||PRIORITY_META["M"];
@@ -603,15 +892,39 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
             return(
               <div key={task.id} style={{position:"absolute",left:pos.x,top:pos.y,width:CW,background:"#0c0818",border:`1px solid ${isSrc?"#b44fff":isTgt?"#10b981":"#23232e"}`,borderRadius:9,padding:"10px 12px",cursor:"pointer",transition:"border-color .15s,box-shadow .15s",boxShadow:isSrc?"0 0 0 2px rgba(180,79,255,.3)":isTgt?"0 0 0 2px rgba(16,185,129,.2)":""}}
                 onClick={()=>onCardClick(task.id,"task")}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:6,marginBottom:6}}>
-                  <span style={{fontSize:12,fontWeight:500,lineHeight:1.35,color:task.status==="Done"?"#3a3055":"#e0ddf0",flex:1}}>{task.title}</span>
-                  <span className="badge" style={{color:pm.color}}>{task.priority}</span>
+                {/* Title & Priority */}
+                <div style={{display:"flex",justifyContent:"space-between",gap:6,marginBottom:8}}>
+                  <span style={{fontFamily:"'Inter Tight',sans-serif",fontSize:12,fontWeight:500,lineHeight:1.4,color:task.status==="Done"?"#3a3055":"#e0ddf0",flex:1}}>
+                    {task.emoji&&<span style={{marginRight:4}}>{task.emoji}</span>}
+                    {task.title}
+                  </span>
+                  <span style={{fontFamily:"Rajdhani,sans-serif",fontSize:11,fontWeight:700,color:pm.color,flexShrink:0}}>{task.priority}</span>
                 </div>
-                <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-                  <span className="dot" style={{background:sm.dot,width:6,height:6}}></span>
-                  <span style={{fontSize:11,color:sm.color}}>{task.status}</span>
-                  {lm&&<span className="chip" style={{background:lm.bg,color:lm.color,border:`1px solid ${lm.color}55`}}>{task.label}</span>}
-                  <span style={{marginLeft:"auto",fontSize:11,color:"#3a3055"}}>{task.assignee}</span>
+                
+                {/* Bottom row: Status on left, chips on right */}
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    <span className="dot" style={{background:sm.dot,width:6,height:6}}></span>
+                    <span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,color:"#5a4870",letterSpacing:"0.08em"}}>{task.assignee}</span>
+                  </div>
+                  
+                  <div style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap",justifyContent:"flex-end"}}>
+                    {lm&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:lm.color,background:lm.bg,padding:"2px 7px",borderRadius:3,letterSpacing:"0.06em",lineHeight:1,display:"inline-block"}}>{task.label}</span>}
+                    {(task.deps||[]).length>0&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:"#b44fff",background:"rgba(180,79,255,0.094)",padding:"3px 6px",borderRadius:3,lineHeight:1,display:"inline-flex",alignItems:"center",gap:"2px"}}>⬡{task.deps.length}</span>}
+                    {(task.reqDeps||[]).length>0&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:"#f97316",background:"rgba(249,115,22,0.094)",padding:"3px 6px",borderRadius:3,lineHeight:1,display:"inline-flex",alignItems:"center",gap:"2px"}}>⇄{task.reqDeps.length}</span>}
+                    {task._stale&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:11,fontWeight:600,color:"#f59e0b",background:"rgba(245,158,11,0.094)",padding:"3px 5px",borderRadius:3,lineHeight:1,display:"inline-block"}}>⏱</span>}
+                    {task._cascadeWarning&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:11,fontWeight:600,color:"#f59e0b",background:"rgba(245,158,11,0.094)",padding:"3px 5px",borderRadius:3,lineHeight:1,display:"inline-block"}}>⚠</span>}
+                    {task._dueSoon&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:"#f59e0b",background:"rgba(245,158,11,0.094)",padding:"3px 5px",borderRadius:3,lineHeight:1,display:"inline-flex",alignItems:"center",gap:"1px"}}>⏰{task._dueSoon}d</span>}
+                    {task._overdue&&<span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:"#ef4444",background:"rgba(239,68,68,0.094)",padding:"3px 5px",borderRadius:3,lineHeight:1,display:"inline-flex",alignItems:"center",gap:"1px"}}>⏰!</span>}
+                    {!linkMode&&(
+                      <button
+                        className="btn g sm"
+                        style={{fontSize:10,padding:"2px 7px",color:"#b44fff",borderColor:"#2a1e3a",marginLeft:2}}
+                        onClick={e=>{e.stopPropagation();setLinkMode({sourceId:task.id,sourceType:"task"});}}>
+                        🔗
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -631,20 +944,36 @@ function PlanView({ tasks, requests, onCardClick, linkMode, setLinkMode, unlinkD
               }
             };
             return(
-              <div key={req.id} style={{position:"absolute",left:pos.x,top:pos.y,width:RW,background:"#14120a",border:`1px solid ${isSrc?"#b44fff":isTgt?"#10b981":"#2a1e0a"}`,borderRadius:8,padding:"8px 10px",cursor:linkMode&&!isTgt&&!isSrc?"default":"pointer",transition:"border-color .15s,box-shadow .15s",boxShadow:isTgt?"0 0 0 2px rgba(16,185,129,.2)":isSrc?"0 0 0 2px rgba(180,79,255,.3)":""}}>
-                <div style={{fontSize:10,color:"#6b5a30",textTransform:"uppercase",letterSpacing:".06em",marginBottom:3}}>⇄ Request</div>
-                <div style={{fontSize:11,fontWeight:500,color:"#e0c97a",lineHeight:1.3,marginBottom:5}}>{req.title}</div>
+              <div key={req.id} style={{position:"absolute",left:pos.x,top:pos.y,width:RW,background:"#14120a",border:`1px solid ${isSrc?"#b44fff":isTgt?"#10b981":"#2a1e0a"}`,borderRadius:8,padding:"10px 12px",cursor:linkMode&&!isTgt&&!isSrc?"default":"pointer",transition:"border-color .15s,box-shadow .15s",boxShadow:isTgt?"0 0 0 2px rgba(16,185,129,.2)":isSrc?"0 0 0 2px rgba(180,79,255,.3)":""}}>
+                <div style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,color:"#6b5a30",textTransform:"uppercase",letterSpacing:".06em",marginBottom:6}}>⇄ Request</div>
+                
+                {/* Title */}
+                <div style={{fontFamily:"'Inter Tight',sans-serif",fontSize:12,fontWeight:500,color:"#e0c97a",lineHeight:1.4,marginBottom:8}}>{req.title}</div>
+                
+                {req.link&&(
+                  <a href={req.link} target="_blank" rel="noopener noreferrer" 
+                    style={{display:"block",fontSize:9,color:"#8a7340",textDecoration:"none",marginBottom:8,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}
+                    onClick={e=>e.stopPropagation()}>
+                    🔗 {req.link.replace(/^https?:\/\//,'')}
+                  </a>
+                )}
+                
+                {/* Bottom row: Team on left, status/link on right */}
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
-                  <span style={{fontSize:10,fontWeight:700,fontFamily:"'Rajdhani',sans-serif",letterSpacing:"0.06em",padding:"1px 7px",borderRadius:3,background:sm.bg,color:sm.color,border:`1px solid ${sm.color}55`}}>{req.status}</span>
-                  {!linkMode&&(
-                    <button
-                      className="btn g sm"
-                      style={{fontSize:10,padding:"2px 7px",color:"#f97316",borderColor:"#3a2010"}}
-                      onClick={e=>{e.stopPropagation();setLinkMode({sourceId:req.id,sourceType:"req"});}}>
-                      🔗
-                    </button>
-                  )}
-                  {isTgt&&<div style={{fontSize:10,color:"#10b981"}}>Click to link</div>}
+                  <span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,color:"#5a4870",letterSpacing:"0.08em"}}>{req.assignee}</span>
+                  
+                  <div style={{display:"flex",alignItems:"center",gap:5}}>
+                    <span style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,fontWeight:600,color:sm.color,background:sm.bg,padding:"2px 7px",borderRadius:3,letterSpacing:"0.06em",lineHeight:1,display:"inline-block"}}>{req.status}</span>
+                    {!linkMode&&(
+                      <button
+                        className="btn g sm"
+                        style={{fontSize:10,padding:"2px 7px",color:"#f97316",borderColor:"#3a2010"}}
+                        onClick={e=>{e.stopPropagation();setLinkMode({sourceId:req.id,sourceType:"req"});}}>
+                        🔗
+                      </button>
+                    )}
+                    {isTgt&&<div style={{fontFamily:"Rajdhani,sans-serif",fontSize:10,color:"#10b981"}}>Click to link</div>}
+                  </div>
                 </div>
               </div>
             );
@@ -670,7 +999,7 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
           const m=s==="All"?{color:"#8a80a8",bg:"#100820"}:EXT_STATUS_META[s];
           const act=filter===s;
           return(
-            <button key={s} onClick={()=>setFilter(s)} style={{padding:"4px 12px",borderRadius:4,border:"1px solid",fontSize:11,cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",fontWeight:600,letterSpacing:"0.06em",transition:"all .15s",background:act?m.bg:"transparent",borderColor:act?m.color:"#1e1430",color:act?m.color:"#5a4870",display:"flex",alignItems:"center",gap:6}}>
+            <button key={s} onClick={()=>setFilter(s)} style={{padding:"4px 12px",borderRadius:4,border:"1px solid",fontSize:11,cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",fontWeight:600,letterSpacing:"0.06em",transition:"all .15s",background:act?m.bg:"transparent",borderColor:act?m.color:"#1e1430",color:act?m.color:"#b8a8d0",display:"flex",alignItems:"center",gap:6}}>
               {s}<span style={{background:"#140f22",padding:"0 5px",borderRadius:3,fontSize:11}}>{n}</span>
             </button>
           );
@@ -689,7 +1018,7 @@ function RequestsView({ requests, tasks, onEdit, linkMode }) {
                 <div style={{flex:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:linkedTasks.length||req.notes?6:0}}>
                     <span style={{fontWeight:600,fontSize:14,color:"#f0e8ff"}}>{req.title}</span>
-                    <span style={{fontSize:11,color:"#8a80a8",background:"#100820",padding:"2px 8px",borderRadius:4,border:"1px solid #1e1430"}}>{req.team}</span>
+                    <span style={{fontSize:11,color:"#d0c8e8",background:"#100820",padding:"2px 8px",borderRadius:4,border:"1px solid #1e1430"}}>{req.team}</span>
                   </div>
                   {req.notes&&<div style={{fontSize:12,color:"#8a80a8",marginBottom:linkedTasks.length?6:0}}>{req.notes}</div>}
                   {linkedTasks.length>0&&(
@@ -1030,19 +1359,60 @@ function TimelineView({ tasks, requests }) {
 ═══════════════════════════════════════════════════════════════ */
 function F({label,children}){return <div className="fl"><label>{label}</label>{children}</div>;}
 
-function TaskModal({ task, tasks, requests, onSave, onDelete, onLink, unlinkDep, unlinkReqDep, onClose }) {
+const EMOJI_OPTIONS=["","🚀","🐛","⚡","🔥","✅","🎯","💡","🔧","📋","⚠️","🎉","🔒","📦","🌐"];
+
+function TaskModal({ task, tasks, requests, onSave, onDelete, onLink, unlinkDep, unlinkReqDep, onClose, updateTask, powerups }) {
   const isEdit=!!task;
-  const [form,setForm]=useState(isEdit?{...task}:{title:"",assignee:TEAM[0],priority:"M",status:"Todo",milestone:MILESTONES[0],deps:[],reqDeps:[],notes:"",label:"",startDate:"",endDate:""});
+  const [form,setForm]=useState(isEdit?{...task}:{title:"",assignee:TEAM[0],priority:"M",status:"Todo",milestone:MILESTONES[0],deps:[],reqDeps:[],notes:"",label:"",startDate:"",endDate:"",dueDate:"",checklist:[],emoji:""});
+  const [newItem,setNewItem]=useState("");
+  const [showEmoji,setShowEmoji]=useState(false);
   const set=(k,v)=>setForm(f=>({...f,[k]:v}));
   const depNames=(form.deps||[]).map(id=>({id,title:tasks.find(t=>t.id===id)?.title||id}));
   const reqDepNames=(form.reqDeps||[]).map(id=>({id,title:requests.find(r=>r.id===id)?.title||id}));
 
+  const cl=form.checklist||[];
+  const clDone=cl.filter(i=>i.done).length;
+
+  const addItem=()=>{
+    if(!newItem.trim()) return;
+    const updated=[...cl,{id:uid(),text:newItem.trim(),done:false}];
+    set("checklist",updated);
+    setNewItem("");
+  };
+
+  const toggleItem=(itemId)=>{
+    const updated=cl.map(i=>i.id===itemId?{...i,done:!i.done}:i);
+    set("checklist",updated);
+    if(powerups?.autoReview && updated.every(i=>i.done) && updated.length>0 && form.status==="In Progress"){
+      set("status","In Review");
+    }
+  };
+
+  const removeItem=(itemId)=>set("checklist",cl.filter(i=>i.id!==itemId));
+
   return(
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div className="mbox">
+      <div className="mbox" style={{width:560}}>
         <div style={{fontWeight:600,fontSize:16,marginBottom:20}}>{isEdit?"Edit task":"New task"}</div>
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <F label="Title"><input className="inp" placeholder="Task title" value={form.title} onChange={e=>set("title",e.target.value)} autoFocus /></F>
+          {/* Title + emoji */}
+          <F label="Title">
+            <div style={{display:"flex",gap:8,position:"relative"}}>
+              <button onClick={()=>setShowEmoji(s=>!s)} style={{background:"#1a1a24",border:"1px solid #2a2a38",borderRadius:7,padding:"8px 10px",fontSize:16,cursor:"pointer",flexShrink:0}}>
+                {form.emoji||"☐"}
+              </button>
+              <input className="inp" placeholder="Task title" value={form.title} onChange={e=>set("title",e.target.value)} autoFocus />
+              {showEmoji&&(
+                <div style={{position:"absolute",top:"100%",left:0,zIndex:10,background:"#1a1a24",border:"1px solid #2a2a38",borderRadius:8,padding:8,display:"flex",flexWrap:"wrap",gap:4,width:240,marginTop:4}}>
+                  {EMOJI_OPTIONS.map(e=>(
+                    <button key={e||"none"} onClick={()=>{set("emoji",e);setShowEmoji(false);}} style={{background:"none",border:"1px solid #2a2a38",borderRadius:4,padding:"4px 6px",fontSize:14,cursor:"pointer",minWidth:32}}>
+                      {e||"∅"}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </F>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
             <F label="Assignee">
               <select className="inp" value={form.assignee} onChange={e=>set("assignee",e.target.value)}>{TEAM.map(a=><option key={a}>{a}</option>)}</select>
@@ -1063,11 +1433,37 @@ function TaskModal({ task, tasks, requests, onSave, onDelete, onLink, unlinkDep,
                 <option value="">None</option>{LABELS.map(l=><option key={l}>{l}</option>)}
               </select>
             </F>
-            <div></div>
+            <F label="Due date"><input type="date" className="inp" value={form.dueDate||""} onChange={e=>set("dueDate",e.target.value)} style={{colorScheme:"dark"}} /></F>
             <F label="Start date"><input type="date" className="inp" value={form.startDate||""} onChange={e=>set("startDate",e.target.value)} style={{colorScheme:"dark"}} /></F>
             <F label="End date"><input type="date" className="inp" value={form.endDate||""} onChange={e=>set("endDate",e.target.value)} style={{colorScheme:"dark"}} /></F>
           </div>
+
           <F label="Notes"><textarea className="inp" placeholder="Optional notes…" value={form.notes} onChange={e=>set("notes",e.target.value)} /></F>
+
+          {/* Checklist */}
+          <F label={`Checklist${cl.length?` (${clDone}/${cl.length})`:""}${powerups?.autoReview&&cl.length?" · auto → In Review when all done":""}`}>
+            <div style={{background:"#1a1a24",borderRadius:7,border:"1px solid #2a2a38",overflow:"hidden"}}>
+              {cl.map(item=>(
+                <div key={item.id} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 12px",borderBottom:"1px solid #22222e"}}>
+                  <div onClick={()=>toggleItem(item.id)} style={{width:16,height:16,borderRadius:4,border:`1.5px solid ${item.done?"#b44fff":"#3a3a50"}`,background:item.done?"#b44fff":"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0,transition:"all .15s"}}>
+                    {item.done&&<span style={{fontSize:10,color:"#fff"}}>✓</span>}
+                  </div>
+                  <span style={{fontSize:12,flex:1,color:item.done?"#484860":"#c4c0d8",textDecoration:item.done?"line-through":"none"}}>{item.text}</span>
+                  <button onClick={()=>removeItem(item.id)} style={{background:"none",border:"none",color:"#3a3a50",cursor:"pointer",fontSize:14,padding:"0 4px"}}>×</button>
+                </div>
+              ))}
+              <div style={{display:"flex",gap:0}}>
+                <input className="inp" placeholder="Add item…" value={newItem} onChange={e=>setNewItem(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addItem()}
+                  style={{border:"none",borderRadius:0,background:"transparent",fontSize:12,padding:"8px 12px"}} />
+                <button onClick={addItem} className="btn p sm" style={{borderRadius:0,borderLeft:"1px solid #2a2a38"}}>+</button>
+              </div>
+            </div>
+            {cl.length>0&&(
+              <div style={{height:3,background:"#1e1e2a",borderRadius:0,overflow:"hidden",marginTop:0}}>
+                <div style={{height:"100%",background:clDone===cl.length?"#10b981":"linear-gradient(90deg,#b44fff,#00d4ff)",width:`${cl.length?clDone/cl.length*100:0}%`,transition:"width .3s"}}></div>
+              </div>
+            )}
+          </F>
           {depNames.length>0&&(
             <F label="Task dependencies">
               <div style={{background:"#100820",borderRadius:7,padding:"10px 12px",display:"flex",flexDirection:"column",gap:6}}>
@@ -1108,7 +1504,7 @@ function TaskModal({ task, tasks, requests, onSave, onDelete, onLink, unlinkDep,
 
 function ReqModal({ req, tasks, onToggleTask, onSave, onDelete, onClose }) {
   const isEdit=!!req;
-  const [form,setForm]=useState(isEdit?{...req}:{title:"",team:"",assignee:TEAM[0],status:"Pending",notes:"",created:new Date().toISOString().slice(0,10)});
+  const [form,setForm]=useState(isEdit?{...req}:{title:"",team:"",assignee:TEAM[0],status:"Pending",notes:"",created:new Date().toISOString().slice(0,10),link:""});
   const [taskSearch,setTaskSearch]=useState("");
   const set=(k,v)=>setForm(f=>({...f,[k]:v}));
 
@@ -1134,6 +1530,7 @@ function ReqModal({ req, tasks, onToggleTask, onSave, onDelete, onClose }) {
             </F>
             <F label="Date submitted"><input type="date" className="inp" value={form.created||""} onChange={e=>set("created",e.target.value)} style={{colorScheme:"dark"}} /></F>
           </div>
+          <F label="Link (Jira, ServiceNow, etc.)"><input className="inp" placeholder="https://..." value={form.link||""} onChange={e=>set("link",e.target.value)} /></F>
           <F label="Notes"><textarea className="inp" placeholder="Context, ticket numbers, follow-up needed…" value={form.notes} onChange={e=>set("notes",e.target.value)} /></F>
 
           {/* Task linker — only meaningful once the request exists */}
@@ -1201,6 +1598,132 @@ function ExportModal({ md, onClose }) {
         <div style={{display:"flex",gap:8,marginTop:16,justifyContent:"flex-end"}}>
           <button className="btn g" onClick={onClose}>Close</button>
           <button className="btn p" onClick={copy}>{copied?"✓ Copied!":"Copy to clipboard"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POWER-UPS MODAL
+═══════════════════════════════════════════════════════════════ */
+function PowerupsModal({ powerups, setPowerups, onClose }) {
+  const set=(k,v)=>setPowerups(p=>({...p,[k]:v}));
+  const Toggle=({k,label,desc})=>(
+    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,padding:"12px 0",borderBottom:"1px solid #1e1430"}}>
+      <div>
+        <div style={{fontSize:13,fontWeight:500,color:"#e8e6f0",marginBottom:2}}>{label}</div>
+        <div style={{fontSize:11,color:"#b8a8d0"}}>{desc}</div>
+      </div>
+      <div onClick={()=>set(k,!powerups[k])} style={{width:36,height:20,borderRadius:10,background:powerups[k]?"#b44fff":"#2a2a38",cursor:"pointer",position:"relative",transition:"background .2s",flexShrink:0,marginTop:2}}>
+        <div style={{position:"absolute",top:2,left:powerups[k]?18:2,width:16,height:16,borderRadius:"50%",background:"#fff",transition:"left .2s"}}></div>
+      </div>
+    </div>
+  );
+  return(
+    <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="mbox">
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
+          <span style={{fontSize:20}}>⚡</span>
+          <span style={{fontWeight:600,fontSize:16}}>Power-ups</span>
+        </div>
+        <Toggle k="autoReview"  label="Auto → In Review"    desc="When all checklist items are checked, automatically move card to In Review" />
+        <Toggle k="staleAlert"    label="Stale alert"         desc={`Flag cards with no activity after ${powerups.staleDays} days`} />
+        {powerups.staleAlert&&(
+          <div style={{padding:"8px 0 12px 0",borderBottom:"1px solid #1e1430",display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:12,color:"#b8a8d0"}}>Stale after</span>
+            {[3,5,7,14].map(d=>(
+              <button key={d} onClick={()=>set("staleDays",d)} style={{padding:"3px 10px",borderRadius:5,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",background:powerups.staleDays===d?"#b44fff":"#1a1a24",borderColor:powerups.staleDays===d?"#b44fff":"#2a2a38",color:powerups.staleDays===d?"#fff":"#d0c8e8"}}>{d}d</button>
+            ))}
+          </div>
+        )}
+        <Toggle k="autoAssign"    label="Auto-assign on In Progress" desc="When a card moves to In Progress, assign it to a specific person" />
+        {powerups.autoAssign&&(
+          <div style={{padding:"8px 0 12px 0",borderBottom:"1px solid #1e1430",display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:12,color:"#b8a8d0"}}>Assign to</span>
+            <select className="inp" style={{width:"auto"}} value={powerups.autoAssignee||TEAM[0]} onChange={e=>set("autoAssignee",e.target.value)}>
+              {TEAM.map(a=><option key={a}>{a}</option>)}
+            </select>
+          </div>
+        )}
+        <Toggle k="cascadeBlock"  label="Cascade block warning" desc="When a card is blocked, highlight dependent tasks with warning badge" />
+        <div style={{padding:"12px 0",display:"flex",alignItems:"center",gap:10}}>
+          <div style={{flex:1}}>
+            <div style={{fontSize:13,fontWeight:500,color:"#e8e6f0",marginBottom:2}}>Due soon warning</div>
+            <div style={{fontSize:11,color:"#b8a8d0"}}>Show warning badge N days before due date</div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            {[1,2,3,5].map(d=>(
+              <button key={d} onClick={()=>set("dueDays",d)} style={{padding:"3px 10px",borderRadius:5,border:"1px solid",fontSize:12,cursor:"pointer",fontFamily:"inherit",background:powerups.dueDays===d?"#b44fff":"#1a1a24",borderColor:powerups.dueDays===d?"#b44fff":"#2a2a38",color:powerups.dueDays===d?"#fff":"#d0c8e8"}}>{d}d</button>
+            ))}
+          </div>
+        </div>
+        <div style={{marginTop:16,textAlign:"right"}}>
+          <button className="btn p" onClick={onClose}>Done</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STANDUP MODAL
+═══════════════════════════════════════════════════════════════ */
+function StandupModal({ tasks, onClose }) {
+  const [copied,setCopied]=useState(false);
+  const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+
+  const lines=["# Standup Report","",`> ${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}`,""];
+
+  TEAM.forEach(person=>{
+    const mine=tasks.filter(t=>t.assignee===person);
+    if(!mine.length) return;
+    const active=mine.filter(t=>t.status==="In Progress");
+    const inReview=mine.filter(t=>t.status==="In Review");
+    const blocked=mine.filter(t=>t.status==="Blocked");
+    const recentDone=mine.filter(t=>t.status==="Done"&&t.lastMoved&&new Date(t.lastMoved).toISOString().slice(0,10)>=yesterday);
+    lines.push(`### ${person}`);
+    if(recentDone.length) { lines.push("**Yesterday:**"); recentDone.forEach(t=>lines.push(`- ✅ ${t.title}`)); }
+    if(active.length) { lines.push("**Today:**"); active.forEach(t=>lines.push(`- 🔄 ${t.title}`)); }
+    if(inReview.length) { lines.push("**In Review:**"); inReview.forEach(t=>lines.push(`- 👀 ${t.title}`)); }
+    if(blocked.length) { lines.push("**Blocked:**"); blocked.forEach(t=>lines.push(`- 🚫 ${t.title}`)); }
+    lines.push("");
+  });
+
+  const md=lines.join("\n");
+  const copy=()=>{ navigator.clipboard.writeText(md); setCopied(true); setTimeout(()=>setCopied(false),2000); };
+
+  return(
+    <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="mbox" style={{width:560}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+          <span style={{fontSize:20}}>🎙</span>
+          <span style={{fontWeight:600,fontSize:16}}>Standup Report</span>
+          <button className="btn g sm" style={{marginLeft:"auto"}} onClick={copy}>{copied?"✓ Copied!":"Copy"}</button>
+          <button className="btn g sm" onClick={onClose}>Close</button>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          {TEAM.map(person=>{
+            const mine=tasks.filter(t=>t.assignee===person);
+            if(!mine.length) return null;
+            const active=mine.filter(t=>t.status==="In Progress");
+            const inReview=mine.filter(t=>t.status==="In Review");
+            const blocked=mine.filter(t=>t.status==="Blocked");
+            const recentDone=mine.filter(t=>t.status==="Done"&&t.lastMoved&&new Date(t.lastMoved).toISOString().slice(0,10)>=yesterday);
+            if(!active.length&&!inReview.length&&!blocked.length&&!recentDone.length) return null;
+            return(
+              <div key={person} style={{background:"#12121a",border:"1px solid #1e1430",borderRadius:10,padding:"12px 16px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                  <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(135deg,#2d1e5a,#b44fff)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:600,color:"#c4b5fd"}}>{person[0]}</div>
+                  <span style={{fontWeight:500,fontSize:14}}>{person}</span>
+                </div>
+                {recentDone.length>0&&<div style={{marginBottom:6}}><div style={{fontSize:10,color:"#10b981",fontWeight:600,marginBottom:3}}>✅ YESTERDAY</div>{recentDone.map(t=><div key={t.id} style={{fontSize:12,color:"#6ee7b7",paddingLeft:8}}>{t.title}</div>)}</div>}
+                {active.length>0&&<div style={{marginBottom:6}}><div style={{fontSize:10,color:"#b44fff",fontWeight:600,marginBottom:3}}>▶ TODAY</div>{active.map(t=><div key={t.id} style={{fontSize:12,color:"#c4c0d8",paddingLeft:8}}>{t.title}</div>)}</div>}
+                {inReview.length>0&&<div style={{marginBottom:6}}><div style={{fontSize:10,color:"#f59e0b",fontWeight:600,marginBottom:3}}>👀 IN REVIEW</div>{inReview.map(t=><div key={t.id} style={{fontSize:12,color:"#fde68a",paddingLeft:8}}>{t.title}</div>)}</div>}
+                {blocked.length>0&&<div><div style={{fontSize:10,color:"#ef4444",fontWeight:600,marginBottom:3}}>🚫 BLOCKED</div>{blocked.map(t=><div key={t.id} style={{fontSize:12,color:"#fca5a5",paddingLeft:8}}>{t.title}</div>)}</div>}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
